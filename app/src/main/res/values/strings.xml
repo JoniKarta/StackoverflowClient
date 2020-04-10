@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">Envirometalist</string>
+
+    <!--Login Activity -->
+    <string name="login">LOGIN</string>
+    <string name="signup">SIGNUP</string>
+    <string name="email">Enter your email</string>
+    <string name="password">Enter your password</string>
+
+
+    <!-- Register Activity    -->
+    <string name="registration_form">Registration</string>
+    <string name="user_name">Enter your username</string>
+    <string name="avatar">Enter your url avatar</string>
+    <string name="role">Enter your role</string>
+    <string name="register">REGISTER</string>
+
+
 </resources>

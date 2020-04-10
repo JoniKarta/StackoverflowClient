@@ -2,9 +2,14 @@ package com.example.envirometalist;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+
+import com.example.envirometalist.model.UserEntity;
+import com.example.envirometalist.model.UserRoleEntity;
+import com.example.envirometalist.services.UserService;
 
 import java.util.List;
 
@@ -20,7 +25,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Intent intent = new Intent(this,LoginActivity.class);
+        startActivity(intent);
+        //TODO SPLASH SCREEN
+
     }
+
 
 
 }
