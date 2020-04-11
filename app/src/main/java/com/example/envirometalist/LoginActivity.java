@@ -3,7 +3,6 @@ package com.example.envirometalist;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -12,8 +11,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.envirometalist.logic.Validator;
 import com.example.envirometalist.model.UserEntity;
 import com.example.envirometalist.services.UserService;
-import com.example.envirometalist.utility.LoadingBar;
+import com.example.envirometalist.utility.AlertDialog;
+import com.example.envirometalist.utility.CustomDialog;
+import com.example.envirometalist.utility.LoadingBarDialog;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,17 +26,18 @@ public class LoginActivity extends AppCompatActivity {
     private UserService userService;
     private EditText emailLoginEditText;
     private EditText passLoginEditText;
-    private LoadingBar loading;
+    private CustomDialog loadingBarDialog;
+    private CustomDialog alertDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
+        loadingBarDialog = new LoadingBarDialog(this);
+        alertDialog = new AlertDialog(this);
         emailLoginEditText = findViewById(R.id.emailLoginEditText);
         passLoginEditText = findViewById(R.id.passLoginEditText);
         Button loginButton = findViewById(R.id.loginButton);
         Button signUpButton = findViewById(R.id.signButton);
-        loading = new LoadingBar(this);
 
         Retrofit retrofit = new Retrofit.Builder().baseUrl(UserService.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -60,29 +63,37 @@ public class LoginActivity extends AppCompatActivity {
 //            }
             if(dirty)
                 return;
-            loading.showLoadingDialog();
-            Log.i("TAG", "onCreate: " + email);
-            Call<UserEntity> call = userService.getUser(email);
-            call.enqueue(new Callback<UserEntity>() {
+            loadingBarDialog.showDialog();
+            userService.getUser(email).enqueue(new Callback<UserEntity>() {
                 @Override
                 public void onResponse(Call<UserEntity> call, Response<UserEntity> response) {
                     if(!response.isSuccessful()){
-                        Log.i("TAG", "onResponse: " + response.code());
-                        loading.hidePDialog();
+                        loadingBarDialog.dismissDialog();
+                        alertDialog.setNewConfiguration()
+                                .setTitleText("Oops...")
+                                .setContentText("Something went wrong!\n" + response.code());
+                        alertDialog.showDialog();
                         return;
                     }
+                    loadingBarDialog.dismissDialog();
                     Log.i("TAG", "onResponse: " + response.body());
-                    loading.hidePDialog();
+                    // TODO Move to the chosen role activity
                     finish();
                 }
 
                 @Override
                 public void onFailure(Call<UserEntity> call, Throwable t) {
-                    Log.i("TAG", "onFailure: " + t.getMessage());
+                    loadingBarDialog.dismissDialog();
+                    alertDialog.setNewConfiguration()
+                            .setTitleText("Fatal error")
+                            .setContentText("Something went wrong!\n" + t.getMessage());
+                    alertDialog.showDialog();
                 }
             });
         });
 
 
     }
+
+
 }
