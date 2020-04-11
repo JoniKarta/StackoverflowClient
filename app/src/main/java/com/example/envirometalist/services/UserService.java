@@ -22,25 +22,3 @@ public interface UserService {
     Call<UserEntity> updateUser(@Path("userEmail") String userEmail,@Body UserEntity user);
 }
 
-
-//    public void updateUser(String userEmail, UserEntity user) {
-//        // TODO create loading bar
-//
-//        Call<UserEntity> call = userService.updateUser(userEmail, user);
-//        call.enqueue(new Callback<UserEntity>() {
-//            @Override
-//            public void onResponse(Call<UserEntity> call, Response<UserEntity> response) {
-//                if (!response.isSuccessful()) {
-//                    Log.i("TAG", "onResponse: " + response.code());
-//                    return;
-//                }
-//                Log.i("TAG", "onResponse: " + response.body());
-//            }
-//
-//            @Override
-//            public void onFailure(Call<UserEntity> call, Throwable t) {
-//                Log.i("TAG", "onFailure: " + t.getMessage());
-//
-//            }
-//        });
-//    }

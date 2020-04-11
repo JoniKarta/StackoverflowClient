@@ -12,8 +12,13 @@
     <string name="registration_form">Registration</string>
     <string name="user_name">Enter your username</string>
     <string name="avatar">Enter your url avatar</string>
-    <string name="role">Enter your role</string>
+    <string name="role">Select Role</string>
     <string name="register">REGISTER</string>
-
-
+    <string-array name="rolesArray">
+        <item>Choose Role</item>
+        <item>PLAYER</item>
+        <item>MANAGER</item>
+        <item>ADMIN</item>
+    </string-array>
+    
 </resources>

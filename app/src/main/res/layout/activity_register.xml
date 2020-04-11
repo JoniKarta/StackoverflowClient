@@ -26,10 +26,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:textColor="@color/colorAccent"
-                    android:textStyle="bold"
                     android:text="@string/registration_form"
-                    android:textSize="20sp" />
+                    android:textColor="@color/colorAccent"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <EditText
                     android:id="@+id/emailRegEditText"
@@ -48,13 +48,6 @@
                     android:inputType="text" />
 
 
-                <EditText
-                    android:id="@+id/roleRegEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
-                    android:hint="@string/role"
-                    android:inputType="text" />
 
                 <EditText
                     android:id="@+id/avatarRegEditText"
@@ -63,6 +56,13 @@
                     android:layout_margin="20dp"
                     android:hint="@string/avatar"
                     android:inputType="text" />
+
+                <Spinner
+                    android:id="@+id/roleSpinnerList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    />
 
                 <Button
                     android:id="@+id/registerButton"

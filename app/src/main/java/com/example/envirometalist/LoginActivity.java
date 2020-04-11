@@ -9,8 +9,10 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.envirometalist.logic.Validator;
 import com.example.envirometalist.model.UserEntity;
 import com.example.envirometalist.services.UserService;
+import com.example.envirometalist.utility.LoadingBar;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -20,16 +22,19 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoginActivity extends AppCompatActivity {
     private UserService userService;
+    private EditText emailLoginEditText;
+    private EditText passLoginEditText;
+    private LoadingBar loading;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        EditText emailLoginEditText = findViewById(R.id.emailLoginEditText);
-        EditText passLoginEditText = findViewById(R.id.passLoginEditText);
+        emailLoginEditText = findViewById(R.id.emailLoginEditText);
+        passLoginEditText = findViewById(R.id.passLoginEditText);
         Button loginButton = findViewById(R.id.loginButton);
         Button signUpButton = findViewById(R.id.signButton);
-
+        loading = new LoadingBar(this);
 
         Retrofit retrofit = new Retrofit.Builder().baseUrl(UserService.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -41,19 +46,34 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         loginButton.setOnClickListener(v -> {
-
+            boolean dirty = false;
             String email = emailLoginEditText.getText().toString().trim();
-            String password = passLoginEditText.getText().toString();
+            //String password = passLoginEditText.getText().toString();
 
+            if(!Validator.isValidEmail(email)){
+                dirty = true;
+                emailLoginEditText.setError("Not valid email");
+            }
+//            if(!Validator.isValidPassword(password)){
+//                dirty = true;
+//                passLoginEditText.setError("Not valid password");
+//            }
+            if(dirty)
+                return;
+            loading.showLoadingDialog();
+            Log.i("TAG", "onCreate: " + email);
             Call<UserEntity> call = userService.getUser(email);
             call.enqueue(new Callback<UserEntity>() {
                 @Override
                 public void onResponse(Call<UserEntity> call, Response<UserEntity> response) {
                     if(!response.isSuccessful()){
                         Log.i("TAG", "onResponse: " + response.code());
+                        loading.hidePDialog();
                         return;
                     }
                     Log.i("TAG", "onResponse: " + response.body());
+                    loading.hidePDialog();
+                    finish();
                 }
 
                 @Override
