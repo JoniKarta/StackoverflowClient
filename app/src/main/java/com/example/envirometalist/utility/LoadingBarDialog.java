@@ -7,7 +7,7 @@ import android.widget.LinearLayout;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-public class LoadingBarDialog implements CustomDialog {
+public class LoadingBarDialog   {
     private SweetAlertDialog pDialog;
 
     public LoadingBarDialog(Context context) {
@@ -15,17 +15,11 @@ public class LoadingBarDialog implements CustomDialog {
         setCustomConfiguration();
     }
 
-    @Override
-    public SweetAlertDialog setNewConfiguration() {
-        return pDialog;
-    }
 
-    @Override
     public void dismissDialog() {
-        pDialog.dismissWithAnimation();
+        pDialog.dismiss();
     }
 
-    @Override
     public void showDialog() {
         LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

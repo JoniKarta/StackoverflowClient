@@ -1,8 +1,12 @@
 package com.example.envirometalist;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -11,8 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.envirometalist.logic.Validator;
 import com.example.envirometalist.model.UserEntity;
 import com.example.envirometalist.services.UserService;
-import com.example.envirometalist.utility.AlertDialog;
-import com.example.envirometalist.utility.CustomDialog;
 import com.example.envirometalist.utility.LoadingBarDialog;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
@@ -26,26 +28,22 @@ public class LoginActivity extends AppCompatActivity {
     private UserService userService;
     private EditText emailLoginEditText;
     private EditText passLoginEditText;
-    private CustomDialog loadingBarDialog;
-    private CustomDialog alertDialog;
+    private LoadingBarDialog loadingBarDialog;
+    private Button loginButton;
+    private Button signUpButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        loadingBarDialog = new LoadingBarDialog(this);
-        alertDialog = new AlertDialog(this);
-        emailLoginEditText = findViewById(R.id.emailLoginEditText);
-        passLoginEditText = findViewById(R.id.passLoginEditText);
-        Button loginButton = findViewById(R.id.loginButton);
-        Button signUpButton = findViewById(R.id.signButton);
-
+        initLoginUI();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(UserService.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         userService = retrofit.create(UserService.class);
 
         signUpButton.setOnClickListener(v -> {
-            startActivity(new Intent(this,RegisterActivity.class));
+            startActivity(new Intent(this, RegisterActivity.class));
         });
 
         loginButton.setOnClickListener(v -> {
@@ -53,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
             String email = emailLoginEditText.getText().toString().trim();
             //String password = passLoginEditText.getText().toString();
 
-            if(!Validator.isValidEmail(email)){
+            if (!Validator.isValidEmail(email)) {
                 dirty = true;
                 emailLoginEditText.setError("Not valid email");
             }
@@ -61,37 +59,62 @@ public class LoginActivity extends AppCompatActivity {
 //                dirty = true;
 //                passLoginEditText.setError("Not valid password");
 //            }
-            if(dirty)
+            if (dirty)
                 return;
-            loadingBarDialog.showDialog();
-            userService.getUser(email).enqueue(new Callback<UserEntity>() {
-                @Override
-                public void onResponse(Call<UserEntity> call, Response<UserEntity> response) {
-                    if(!response.isSuccessful()){
-                        loadingBarDialog.dismissDialog();
-                        alertDialog.setNewConfiguration()
-                                .setTitleText("Oops...")
-                                .setContentText("Something went wrong!\n" + response.code());
-                        alertDialog.showDialog();
-                        return;
-                    }
-                    loadingBarDialog.dismissDialog();
-                    Log.i("TAG", "onResponse: " + response.body());
-                    // TODO Move to the chosen role activity
-                    finish();
-                }
 
-                @Override
-                public void onFailure(Call<UserEntity> call, Throwable t) {
-                    loadingBarDialog.dismissDialog();
-                    alertDialog.setNewConfiguration()
-                            .setTitleText("Fatal error")
-                            .setContentText("Something went wrong!\n" + t.getMessage());
-                    alertDialog.showDialog();
-                }
-            });
+            signInWithUserEmail(email);
         });
+    }
+    private void initLoginUI() {
+        loadingBarDialog = new LoadingBarDialog(this);
+        emailLoginEditText = findViewById(R.id.emailLoginEditText);
+        passLoginEditText = findViewById(R.id.passLoginEditText);
+        loginButton = findViewById(R.id.loginButton);
+        signUpButton = findViewById(R.id.signButton);
 
+    }
+
+    private void signInWithUserEmail(String email){
+        loadingBarDialog.showDialog();
+        userService.getUser(email).enqueue(new Callback<UserEntity>() {
+            @Override
+            public void onResponse(Call<UserEntity> call, Response<UserEntity> response) {
+                if (!response.isSuccessful()) {
+                    loadingBarDialog.dismissDialog();
+                    new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText("Oops...")
+                            .setContentText("Something went wrong!\n" + response.code())
+                            .show();
+                    return;
+                }
+                loadingBarDialog.dismissDialog();
+                Log.i("TAG", "onResponse: " + response.body());
+                // TODO Move to the chosen role activity
+                finish();
+            }
+
+            @Override
+            public void onFailure(Call<UserEntity> call, Throwable t) {
+                loadingBarDialog.dismissDialog();
+                new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
+                        .setTitleText("Fatal error")
+                        .setContentText("Something went wrong!\n" + t.getMessage())
+                        .show();
+            }
+        });
+    }
+
+    /**
+     * Hide the keyboard with pressing on the screen
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        View view = this.getCurrentFocus();
+        if (imm != null && view != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+        return super.onTouchEvent(event);
 
     }
 
