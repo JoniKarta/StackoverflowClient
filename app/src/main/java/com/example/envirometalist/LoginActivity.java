@@ -1,9 +1,14 @@
 package com.example.envirometalist;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -28,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        configWindow();
         setContentView(R.layout.activity_login);
 
         emailLoginEditText = findViewById(R.id.emailLoginEditText);
@@ -35,7 +41,6 @@ public class LoginActivity extends AppCompatActivity {
         Button loginButton = findViewById(R.id.loginButton);
         Button signUpButton = findViewById(R.id.signButton);
         loading = new LoadingBar(this);
-
         Retrofit retrofit = new Retrofit.Builder().baseUrl(UserService.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -63,6 +68,7 @@ public class LoginActivity extends AppCompatActivity {
             loading.showLoadingDialog();
             Log.i("TAG", "onCreate: " + email);
             Call<UserEntity> call = userService.getUser(email);
+
             call.enqueue(new Callback<UserEntity>() {
                 @Override
                 public void onResponse(Call<UserEntity> call, Response<UserEntity> response) {
@@ -85,4 +91,27 @@ public class LoginActivity extends AppCompatActivity {
 
 
     }
+
+    /**
+     * Configuration of login window
+     */
+    private void configWindow() {
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
+
+    /**
+     * Hide the keyboard with pressing on the screen
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        View view = this.getCurrentFocus();
+        if (imm != null && view != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+        return super.onTouchEvent(event);
+
+    }
+
 }

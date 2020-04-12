@@ -5,9 +5,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".LoginActivity"
-    android:gravity="center"
-    android:padding="40dp">
+    android:padding="40dp"
+    android:background="@drawable/login_gradient_background">
 
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@drawable/logo"
+        android:layout_gravity="center"
+        android:layout_marginBottom="30dp">
+
+    </ImageView>
 
     <EditText
         android:id="@+id/emailLoginEditText"
@@ -15,8 +23,9 @@
         android:hint="@string/email"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:backgroundTint="@color/black"
         android:inputType="textEmailAddress"
-        android:layout_margin="20dp"/>
+        android:layout_margin="10dp"/>
 
     <EditText
         android:id="@+id/passLoginEditText"
@@ -24,14 +33,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:backgroundTint="@color/black"
         android:inputType="textPassword"
-        android:layout_margin="20dp"/>
+        android:layout_margin="10dp"/>
 
     <Button
         android:id="@+id/loginButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/login"
+        android:background="@drawable/login_button_gradient"
         android:layout_margin="20dp"/>
 
     <Button
@@ -39,5 +50,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/signup"
+        android:background="@drawable/login_button_gradient"
         android:layout_margin="20dp"/>
 </LinearLayout>
