@@ -37,15 +37,18 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         initLoginUI();
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(UserService.BASE_URL)
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(UserService.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
         userService = retrofit.create(UserService.class);
+        signUpListener();
+        loginListener();
+    }
 
-        signUpButton.setOnClickListener(v -> {
-            startActivity(new Intent(this, RegisterActivity.class));
-        });
-
+    private void loginListener() {
         loginButton.setOnClickListener(v -> {
             boolean dirty = false;
             String email = emailLoginEditText.getText().toString().trim();
@@ -55,16 +58,23 @@ public class LoginActivity extends AppCompatActivity {
                 dirty = true;
                 emailLoginEditText.setError("Not valid email");
             }
-//            if(!Validator.isValidPassword(password)){
-//                dirty = true;
-//                passLoginEditText.setError("Not valid password");
-//            }
+/*            if(!Validator.isValidPassword(password)){
+                dirty = true;
+                passLoginEditText.setError("Not valid password");
+            }*/
             if (dirty)
                 return;
 
             signInWithUserEmail(email);
         });
     }
+
+    private void signUpListener() {
+        signUpButton.setOnClickListener(v -> {
+            startActivity(new Intent(this, RegisterActivity.class));
+        });
+    }
+
     private void initLoginUI() {
         loadingBarDialog = new LoadingBarDialog(this);
         emailLoginEditText = findViewById(R.id.emailLoginEditText);
@@ -74,20 +84,20 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void signInWithUserEmail(String email){
+    private void signInWithUserEmail(String email) {
         loadingBarDialog.showDialog();
         userService.getUser(email).enqueue(new Callback<UserEntity>() {
             @Override
             public void onResponse(Call<UserEntity> call, Response<UserEntity> response) {
+                loadingBarDialog.dismissDialog();
                 if (!response.isSuccessful()) {
-                    loadingBarDialog.dismissDialog();
                     new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
                             .setTitleText("Oops...")
                             .setContentText("Something went wrong!\n" + response.code())
                             .show();
                     return;
                 }
-                loadingBarDialog.dismissDialog();
+
                 Log.i("TAG", "onResponse: " + response.body());
                 // TODO Move to the chosen role activity
                 finish();
@@ -115,8 +125,5 @@ public class LoginActivity extends AppCompatActivity {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
         return super.onTouchEvent(event);
-
     }
-
-
 }

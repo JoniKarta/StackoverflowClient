@@ -82,8 +82,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
             UserEntity newUser = new UserEntity(email.getText().toString(), role, userName.getText().toString(), avatar.getText().toString());
             // Async call - send the user to the server
             createUser(newUser);
-
-
         });
 
     }
@@ -106,18 +104,17 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         userService.createUser(newUser).enqueue(new Callback<UserEntity>() {
             @Override
             public void onResponse(Call<UserEntity> call, Response<UserEntity> response) {
+                loadingBarDialog.dismissDialog();
                 if (!response.isSuccessful()) {
                     Log.i("TAG", "onResponse: " + response.code());
-                    loadingBarDialog.dismissDialog();
                     new SweetAlertDialog(RegisterActivity.this, SweetAlertDialog.ERROR_TYPE)
                             .setTitleText("Fatal error")
                             .setContentText("Something went wrong!\n" + response.code())
                             .show();
                     return;
                 }
+                finish();
                 Log.i("TAG", "onResponse: " + response.body());
-                loadingBarDialog.dismissDialog();
-
             }
 
             @Override
@@ -156,6 +153,4 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         return super.onTouchEvent(event);
 
     }
-
-
 }
