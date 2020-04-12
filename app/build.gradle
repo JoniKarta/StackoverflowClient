@@ -48,4 +48,8 @@ dependencies {
 
     // Sweet alert progress dialog
     implementation 'com.github.f0ris.sweetalert:library:1.6.2'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+
+    // Circle images library
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 }

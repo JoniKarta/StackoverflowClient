@@ -7,38 +7,38 @@ import android.widget.LinearLayout;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-public final class LoadingBar {
-    private Context context;
+public class LoadingBarDialog   {
     private SweetAlertDialog pDialog;
 
-    public LoadingBar(Context context) {
-        this.context = context;
+    public LoadingBarDialog(Context context) {
+        pDialog = new SweetAlertDialog(context, SweetAlertDialog.PROGRESS_TYPE);
+        setCustomConfiguration();
     }
 
-    public void showLoadingDialog() {
-        hidePDialog();
+
+    public void dismissDialog() {
+        pDialog.dismiss();
+    }
+
+    public void showDialog() {
         LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
         btnParams.leftMargin = 5;
-        pDialog = new SweetAlertDialog(context, SweetAlertDialog.PROGRESS_TYPE);
+
+        pDialog.show();
+        pDialog.getButton(SweetAlertDialog.BUTTON_CANCEL).setHeight(85);
+        pDialog.getButton(SweetAlertDialog.BUTTON_CANCEL).setLayoutParams(btnParams);
+    }
+
+
+    private void setCustomConfiguration(){
         pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
         pDialog.setTitleText("Loading...");
         pDialog.setCancelable(false);
         pDialog.showCancelButton(true);
         pDialog.setCanceledOnTouchOutside(false);
         pDialog.setCancelText("Cancel");
-        pDialog.setCancelClickListener(sDialog -> hidePDialog());
-        pDialog.show();
-        pDialog.getButton(SweetAlertDialog.BUTTON_CANCEL).setHeight(85);
-        pDialog.getButton(SweetAlertDialog.BUTTON_CANCEL).setLayoutParams(btnParams);
-    }
+        pDialog.setCancelClickListener(sDialog -> dismissDialog());
 
-    public void hidePDialog() {
-        if (pDialog != null) {
-            pDialog.dismissWithAnimation();
-            pDialog = null;
-        }
     }
 }
-
