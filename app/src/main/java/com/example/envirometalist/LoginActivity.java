@@ -57,16 +57,11 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
         loginButton.setOnClickListener(v -> {
             boolean dirty = false;
             String email = emailLoginEditText.getText().toString().trim();
-            //String password = passLoginEditText.getText().toString();
 
             if (!Validator.isValidEmail(email)) {
                 dirty = true;
                 emailLoginEditText.setError("Not valid email");
             }
-/*            if(!Validator.isValidPassword(password)){
-                dirty = true;
-                passLoginEditText.setError("Not valid password");
-            }*/
             if (dirty)
                 return;
 
