@@ -7,13 +7,17 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.envirometalist.logic.Validator;
 import com.example.envirometalist.model.UserEntity;
+import com.example.envirometalist.model.UserRoleEntity;
 import com.example.envirometalist.services.UserService;
 import com.example.envirometalist.utility.LoadingBarDialog;
 
@@ -24,10 +28,11 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private UserService userService;
     private EditText emailLoginEditText;
-    private EditText passLoginEditText;
+    private String role;
+    private Spinner loginSpinnerList;
     private LoadingBarDialog loadingBarDialog;
     private Button loginButton;
     private Button signUpButton;
@@ -78,7 +83,12 @@ public class LoginActivity extends AppCompatActivity {
     private void initLoginUI() {
         loadingBarDialog = new LoadingBarDialog(this);
         emailLoginEditText = findViewById(R.id.emailLoginEditText);
-        passLoginEditText = findViewById(R.id.passLoginEditText);
+        loginSpinnerList = findViewById(R.id.loginRoleSpinnerList);
+        String[] roles = {"PLAYER", "MANAGER", "ADMIN"};
+        ArrayAdapter<String> roleArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, roles);
+        roleArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        loginSpinnerList.setAdapter(roleArrayAdapter);
+        loginSpinnerList.setOnItemSelectedListener(this);
         loginButton = findViewById(R.id.loginButton);
         signUpButton = findViewById(R.id.signButton);
 
@@ -97,10 +107,20 @@ public class LoginActivity extends AppCompatActivity {
                             .show();
                     return;
                 }
+                UserEntity user = response.body();
+                if (user != null && user.getRole().name().compareTo(role) == 0) {
+                    // Login successfully
+                    Log.i("TAG", "onResponse: " + response.body());
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    // TODO Move to the chosen role activity
+                    finish();
+                } else {
+                    new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText("Oops...")
+                            .setContentText("You don't have those permissions!\n" + response.code())
+                            .show();
+                }
 
-                Log.i("TAG", "onResponse: " + response.body());
-                // TODO Move to the chosen role activity
-                finish();
             }
 
             @Override
@@ -125,5 +145,16 @@ public class LoginActivity extends AppCompatActivity {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
         return super.onTouchEvent(event);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        role = parent.getItemAtPosition(position).toString();
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }
