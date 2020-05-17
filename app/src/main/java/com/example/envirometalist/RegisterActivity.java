@@ -15,8 +15,8 @@ import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.envirometalist.logic.Validator;
-import com.example.envirometalist.model.UserEntity;
-import com.example.envirometalist.model.UserRoleEntity;
+import com.example.envirometalist.model.User;
+import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.UserService;
 import com.example.envirometalist.utility.LoadingBarDialog;
 
@@ -35,7 +35,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     private EditText email;
     private EditText userName;
     private EditText avatar;
-    private UserRoleEntity role;
+    private UserRole role;
     private LoadingBarDialog loadingBarDialog;
     private Button register;
     @Override
@@ -79,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
                 return;
 
             loadingBarDialog.showDialog();
-            UserEntity newUser = new UserEntity(email.getText().toString(), role, userName.getText().toString(), avatar.getText().toString());
+            User newUser = new User(email.getText().toString(), role, userName.getText().toString(), avatar.getText().toString());
             // Async call - send the user to the server
             createUser(newUser);
         });
@@ -100,10 +100,10 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         spinnerRoleList.setOnItemSelectedListener(this);
     }
 
-    private void createUser(UserEntity newUser) {
-        userService.createUser(newUser).enqueue(new Callback<UserEntity>() {
+    private void createUser(User newUser) {
+        userService.createUser(newUser).enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<UserEntity> call, Response<UserEntity> response) {
+            public void onResponse(Call<User> call, Response<User> response) {
                 loadingBarDialog.dismissDialog();
                 if (!response.isSuccessful()) {
                     Log.i("TAG", "onResponse: " + response.code());
@@ -118,7 +118,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
             }
 
             @Override
-            public void onFailure(Call<UserEntity> call, Throwable t) {
+            public void onFailure(Call<User> call, Throwable t) {
                 loadingBarDialog.dismissDialog();
                 new SweetAlertDialog(RegisterActivity.this, SweetAlertDialog.ERROR_TYPE)
                         .setTitleText("Fatal error")
@@ -132,7 +132,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String itemSelected = parent.getItemAtPosition(position).toString();
-        role = UserRoleEntity.valueOf(itemSelected);
+        role = UserRole.valueOf(itemSelected);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.example.envirometalist.services;
 
 import com.example.envirometalist.model.Element;
-import com.example.envirometalist.model.UserEntity;
+import com.example.envirometalist.model.User;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -29,5 +29,5 @@ public interface ElementService {
 
     @GET("{userEmail}")
     Call<Element[]> getAllElements(@Path("userEmail") String userEmail,
-                                   @Body UserEntity user);
+                                   @Body User user);
 }

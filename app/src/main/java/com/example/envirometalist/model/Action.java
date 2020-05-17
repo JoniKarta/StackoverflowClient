@@ -3,7 +3,7 @@ package com.example.envirometalist.model;
 import java.util.Date;
 import java.util.Map;
 
-public class ActionEntity {
+public class Action {
     private String type;
     private String actionId;
     private Element element;
@@ -11,10 +11,10 @@ public class ActionEntity {
     private Invoker invokedBy;
     private Map<String, Object> actionAttributes;
 
-    public ActionEntity() {
+    public Action() {
     }
 
-    public ActionEntity(String type, String actionId, Element element, Date createdTimestamp, Invoker invokedBy, Map<String, Object> actionAttributes) {
+    public Action(String type, String actionId, Element element, Date createdTimestamp, Invoker invokedBy, Map<String, Object> actionAttributes) {
         this.type = type;
         this.actionId = actionId;
         this.element = element;

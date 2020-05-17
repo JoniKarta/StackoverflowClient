@@ -1,6 +1,6 @@
 package com.example.envirometalist.services;
 
-import com.example.envirometalist.model.UserEntity;
+import com.example.envirometalist.model.User;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -14,12 +14,12 @@ public interface UserService {
     String BASE_URL = "http://10.100.102.7:8091/acs/users/";
 
     @GET("login/{userEmail}")
-    Call<UserEntity> getUser(@Path("userEmail") String userEmail);
+    Call<User> getUser(@Path("userEmail") String userEmail);
 
     @POST(".")
-    Call<UserEntity> createUser(@Body UserEntity newUser);
+    Call<User> createUser(@Body User newUser);
 
     @PUT("{userEmail}")
-    Call<UserEntity> updateUser(@Path("userEmail") String userEmail,@Body UserEntity user);
+    Call<User> updateUser(@Path("userEmail") String userEmail, @Body User user);
 }
 

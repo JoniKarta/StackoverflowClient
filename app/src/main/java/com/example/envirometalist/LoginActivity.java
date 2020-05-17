@@ -16,8 +16,7 @@ import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.envirometalist.logic.Validator;
-import com.example.envirometalist.model.UserEntity;
-import com.example.envirometalist.model.UserRoleEntity;
+import com.example.envirometalist.model.User;
 import com.example.envirometalist.services.UserService;
 import com.example.envirometalist.utility.LoadingBarDialog;
 
@@ -91,9 +90,9 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
 
     private void signInWithUserEmail(String email) {
         loadingBarDialog.showDialog();
-        userService.getUser(email).enqueue(new Callback<UserEntity>() {
+        userService.getUser(email).enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<UserEntity> call, Response<UserEntity> response) {
+            public void onResponse(Call<User> call, Response<User> response) {
                 loadingBarDialog.dismissDialog();
                 if (!response.isSuccessful()) {
                     new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
@@ -102,7 +101,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                             .show();
                     return;
                 }
-                UserEntity user = response.body();
+                User user = response.body();
                 if (user != null && user.getRole().name().compareTo(role) == 0) {
                     // Login successfully
                     Log.i("TAG", "onResponse: " + response.body());
@@ -119,7 +118,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
             }
 
             @Override
-            public void onFailure(Call<UserEntity> call, Throwable t) {
+            public void onFailure(Call<User> call, Throwable t) {
                 loadingBarDialog.dismissDialog();
                 new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
                         .setTitleText("Fatal error")

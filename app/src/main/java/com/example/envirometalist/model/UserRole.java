@@ -1,5 +1,5 @@
 package com.example.envirometalist.model;
 
-public enum UserRoleEntity {
+public enum UserRole {
     ADMIN, MANAGER, PLAYER;
 }

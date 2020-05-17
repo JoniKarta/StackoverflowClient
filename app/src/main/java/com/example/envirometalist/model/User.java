@@ -1,12 +1,12 @@
 package com.example.envirometalist.model;
 
-public class UserEntity {
+public class User {
     private String email;
-    private UserRoleEntity role;
+    private UserRole role;
     private String userName;
     private String avatar;
 
-    public UserEntity(String email, UserRoleEntity role, String userName, String avatar) {
+    public User(String email, UserRole role, String userName, String avatar) {
         this.email = email;
         this.role = role;
         this.userName = userName;
@@ -17,7 +17,7 @@ public class UserEntity {
         return email;
     }
 
-    public UserRoleEntity getRole() {
+    public UserRole getRole() {
         return role;
     }
 
