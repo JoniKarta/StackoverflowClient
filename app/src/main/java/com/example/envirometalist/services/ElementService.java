@@ -13,7 +13,7 @@ import retrofit2.http.Query;
 
 public interface ElementService {
 
-    String BASE_URL = "http://10.100.102.3:8091/acs/elements/";
+    String BASE_URL = "http://192.168.43.188:8091/acs/elements/";
 
     @POST("{managerEmail}")
     Call<Element> createElement(
@@ -34,8 +34,8 @@ public interface ElementService {
     @GET("{userEmail}")
     Call<Element[]> getAllElements(
             @Path("userEmail") String userEmail,
-            @Query("size") int page,
-            @Query("page") int size);
+            @Query("size") int size,
+            @Query("page") int page);
 
     @PUT("{managerEmail}/{parentElementId}/children")
     Call<Void> addChildToParent(
@@ -60,14 +60,14 @@ public interface ElementService {
     @GET("{userEmail}/search/byName/{name}")
     Call<Element[]> searchElementByName(
             @Path("userEmail") String userEmail,
-            @Path("name") String parentElementId,
+            @Path("name") String elementName,
             @Query("size") int size,
             @Query("page") int page);
 
     @GET("{userEmail}/search/byType/{type}")
     Call<Element[]> searchElementByType(
             @Path("userEmail") String userEmail,
-            @Path("type") String parentElementId,
+            @Path("type") String elementType,
             @Query("size") int size,
             @Query("page") int page);
 

@@ -18,6 +18,7 @@ import java.util.List;
 public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementViewHolder>  {
     private List<Element> elementList;
     private OnElementClickListener onElementClickListener;
+
     public ElementAdapter(List<Element> elementList,OnElementClickListener onElementClickListener) {
         this.elementList = elementList;
         this.onElementClickListener = onElementClickListener;
@@ -61,12 +62,9 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
             elementActiveTextView = itemView.findViewById(R.id.elementActiveTextView);
             elementCreator = itemView.findViewById(R.id.elementCreatorTextView);
             elementDateCreation = itemView.findViewById(R.id.elementCreationTextView);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(onElementListener != null)
-                        onElementListener.onClick(getAdapterPosition());
-                }
+            itemView.setOnClickListener(v -> {
+                if(onElementListener != null)
+                    onElementListener.onClick(getAdapterPosition());
             });
         }
     }

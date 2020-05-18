@@ -39,10 +39,8 @@
 
     <!-- Spinner     -->
     <string-array name="search_filter_spinner">
+        <item>All</item>
         <item>Name</item>
-        <item>Active</item>
-        <item>Serach By </item>
-        <item>Serach By </item>
-        <item>Serach By</item>
+        <item>Type</item>
     </string-array>
 </resources>
