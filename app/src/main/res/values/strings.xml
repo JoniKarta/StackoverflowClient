@@ -36,4 +36,13 @@
 
     <string name="home_second">Home Second</string>
 
+
+    <!-- Spinner     -->
+    <string-array name="search_filter_spinner">
+        <item>Name</item>
+        <item>Active</item>
+        <item>Serach By </item>
+        <item>Serach By </item>
+        <item>Serach By</item>
+    </string-array>
 </resources>

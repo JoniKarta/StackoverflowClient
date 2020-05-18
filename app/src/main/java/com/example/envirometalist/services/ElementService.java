@@ -12,7 +12,7 @@ import retrofit2.http.Path;
 
 public interface ElementService {
 
-    String BASE_URL = "http://10.0.0.4:8091/acs/elements/";
+    String BASE_URL = "http://10.100.102.3:8091/acs/elements/";
 
     @POST("{managerEmail}")
     Call<Element> createElement(@Path("managerEmail") String managerEmail,
@@ -28,6 +28,5 @@ public interface ElementService {
                              @Path("elementId") String elementId);
 
     @GET("{userEmail}")
-    Call<Element[]> getAllElements(@Path("userEmail") String userEmail,
-                                   @Body User user);
+    Call<Element[]> getAllElements(@Path("userEmail") String userEmail);
 }
