@@ -1,7 +1,6 @@
-package com.example.envirometalist.fragments.gallery;
+package com.example.envirometalist.fragments.management;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,11 +31,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static androidx.constraintlayout.widget.Constraints.TAG;
-
 // TODO GET THE USERNAME FROM THE MANAGER ACTIVITY
 
-public class ElementManagementFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+public class ElementManagementFragment extends Fragment implements AdapterView.OnItemSelectedListener, ElementAdapter.OnElementClickListener {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private ElementService elementService;
@@ -44,10 +41,12 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_elements_manager, container, false);
+        // Spinner view configuration
         spinner = root.findViewById(R.id.searchCategorySpinner);
         ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(getActivity(),R.array.search_filter_spinner,android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(filterAdapter);
         spinner.setOnItemSelectedListener(this);
+
         // Recycler view configuration
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView = root.findViewById(R.id.recyclerView);
@@ -67,6 +66,30 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
         getAllElements("Jonathan@gmail.com");
         return root;
     }
+
+
+       @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String text = parent.getItemAtPosition(position).toString();
+        Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    @Override
+    public void onClick(int position) {
+        Toast.makeText(getActivity(), "Item at pos: " + position, Toast.LENGTH_SHORT).show();
+
+        //        NextFragment nextFrag= new NextFragment();
+//        getActivity().getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.Layout_container, nextFrag, "findThisFragment")
+//                .addToBackStack(null)
+//                .commit();
+    }
+
     private void getAllElements(String managerEmail){
         elementService.getAllElements(managerEmail)
                 .enqueue(new Callback<Element[]>() {
@@ -81,7 +104,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                         }
                         ArrayList<Element> arrayList = new ArrayList<>();
                         Collections.addAll(arrayList, Objects.requireNonNull(response.body()));
-                        adapter = new ElementAdapter(arrayList);
+                        adapter = new ElementAdapter(arrayList,ElementManagementFragment.this);
                         recyclerView.setAdapter(adapter);
                     }
 
@@ -95,15 +118,11 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                 });
     }
 
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String text = parent.getItemAtPosition(position).toString();
-        Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
+    private void getElementsByName(String name){
 
     }
+    private void getElementsByActive(boolean active){
+
+    }
+
 }

@@ -1,6 +1,5 @@
-package com.example.envirometalist.fragments.gallery;
+package com.example.envirometalist.fragments.management;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,22 +12,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.envirometalist.R;
 import com.example.envirometalist.model.Element;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
-public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementViewHolder> {
+public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementViewHolder>  {
     private List<Element> elementList;
-
-    public ElementAdapter(List<Element> elementList) {
+    private OnElementClickListener onElementClickListener;
+    public ElementAdapter(List<Element> elementList,OnElementClickListener onElementClickListener) {
         this.elementList = elementList;
+        this.onElementClickListener = onElementClickListener;
     }
 
     @NonNull
     @Override
     public ElementViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.element_item, parent, false);
-        return new ElementViewHolder(v);
+        return new ElementViewHolder(v,onElementClickListener);
     }
 
     @Override
@@ -54,8 +53,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
         private TextView elementActiveTextView;
         private TextView elementCreator;
         private TextView elementDateCreation;
-
-        public ElementViewHolder(@NonNull View itemView) {
+        public ElementViewHolder(@NonNull View itemView, OnElementClickListener onElementListener) {
             super(itemView);
             elementImageView = itemView.findViewById(R.id.recycleBinImageView);
             elementTypeTextView = itemView.findViewById(R.id.elementTypeTextView);
@@ -63,6 +61,16 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
             elementActiveTextView = itemView.findViewById(R.id.elementActiveTextView);
             elementCreator = itemView.findViewById(R.id.elementCreatorTextView);
             elementDateCreation = itemView.findViewById(R.id.elementCreationTextView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(onElementListener != null)
+                        onElementListener.onClick(getAdapterPosition());
+                }
+            });
         }
+    }
+    interface OnElementClickListener {
+        void onClick(int position);
     }
 }

@@ -31,7 +31,7 @@
 
     <fragment
         android:id="@+id/nav_gallery"
-        android:name="com.example.envirometalist.fragments.gallery.ElementManagementFragment"
+        android:name="com.example.envirometalist.fragments.management.ElementManagementFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_elements_manager" />
 
