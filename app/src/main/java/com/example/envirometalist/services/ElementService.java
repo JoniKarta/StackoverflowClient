@@ -13,7 +13,7 @@ import retrofit2.http.Query;
 
 public interface ElementService {
 
-    String BASE_URL = "http://192.168.43.188:8091/acs/elements/";
+    String BASE_URL = "http://10.100.102.3:8091/acs/elements/";
 
     @POST("{managerEmail}")
     Call<Element> createElement(
