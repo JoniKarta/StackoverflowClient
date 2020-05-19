@@ -45,29 +45,32 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
     private ElementAdapter adapter;
     private ElementService elementService;
     private ArrayList<Element> elementList;
+    private EditText searchElementEditText;
     private String filter;
-    private String stringFilter;
     private static int page = 0;
     private static final int SIZE = 10;
-    private EditText searchElementEditText;
+    private String managerEmail = "Jonathan@gmail.com";
+
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_elements_manager, container, false);
-        // Spinner view configuration
-        Spinner spinner = root.findViewById(R.id.searchCategorySpinner);
-        searchElementEditText = root.findViewById(R.id.searchElementEditText);
 
-        elementList = new ArrayList<>();
+        searchElementEditText = root.findViewById(R.id.searchElementEditText);
+        Spinner spinner = root.findViewById(R.id.searchCategorySpinner);
+        recyclerView = root.findViewById(R.id.recyclerView);
+
+        // Spinner Configuration
         ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.search_filter_spinner, android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(filterAdapter);
         spinner.setOnItemSelectedListener(this);
 
-        // Recycler view configuration
+        // Recycler View Configuration
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView = root.findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new ElementAdapter(elementList, ElementManagementFragment.this);
         recyclerView.setAdapter(adapter);
+        elementList = new ArrayList<>();
+
         // Init retrofit for async call
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(ElementService.BASE_URL)
@@ -76,26 +79,14 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
 
         // Inject instance to element service
         elementService = retrofit.create(ElementService.class);
-        getAllElements("Jonathan@gmail.com", SIZE, page);
 
         // ===================================================================================///
-        // Adding items to listview
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (!recyclerView.canScrollVertically(1)) {
-                    switch (filter) {
-                        case "All":
-                            getAllElements("Jonathan@gmail.com", SIZE, page++);
-                            break;
-                        case "Name":
-                            getElementsByName("Jonathan@gmail.com", stringFilter, SIZE, page++);
-                            break;
-                        case "Type":
-                            getElementByType("Jonathan@gmail.com", stringFilter, SIZE, page++);
-                            break;
-                    }
+                    setSearchFilter(managerEmail, filter);
                 }
             }
         });
@@ -104,15 +95,19 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
         searchElementEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                if (!cs.toString().isEmpty() && filter.equals("Name"))
-                    getElementsByName("Jonathan@gmail.com", cs.toString(), SIZE, page);
-                else if (!cs.toString().isEmpty() && filter.equals("Type"))
-                    getElementByType("Jonathan@gmail.com", cs.toString(), SIZE, page);
+                if (filter.equals(SearchFilter.Name.name()))
+                    getElementsByName(managerEmail, cs.toString(), SIZE, page);
+                else if (filter.equals(SearchFilter.Type.name()))
+                    getElementByType(managerEmail, cs.toString(), SIZE, page);
             }
+
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
         return root;
     }
@@ -122,16 +117,10 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         filter = parent.getItemAtPosition(position).toString();
-        if(adapter != null){
-            adapter.clearRecyclerView();
-            searchElementEditText.getText().clear();
-            page = 0;
-        }if(filter.equals("All")){
-            getAllElements("Jonathan@gmail.com", SIZE, page++);
-        }
+        refreshFilter();
+        setSearchFilter("Jonathan@gmail.com", filter);
 
     }
-
 
 
     @Override
@@ -164,7 +153,6 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                         }
                         Collections.addAll(elementList, Objects.requireNonNull(response.body()));
                         adapter.notifyDataSetChanged();
-
                     }
 
                     @Override
@@ -175,6 +163,8 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
     }
 
     private void getElementsByName(String managerEmail, String name, int size, int page) {
+        if (name.isEmpty())
+            return;
         elementService.searchElementByName(managerEmail, name, size, page).enqueue(new Callback<Element[]>() {
             @Override
             public void onResponse(@NotNull Call<Element[]> call, @NotNull Response<Element[]> response) {
@@ -220,6 +210,24 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                 .setTitleText(title)
                 .setContentText(content)
                 .show();
+    }
+
+    private void setSearchFilter(String managerEmail, String filter) {
+        if (SearchFilter.All.name().equals(filter))
+            getAllElements(managerEmail, SIZE, page++);
+        else if (SearchFilter.Name.name().equals(filter))
+            getElementsByName(managerEmail, "", SIZE, page++);
+        else if (SearchFilter.Type.name().equals(filter))
+            getElementByType(managerEmail, "", SIZE, page++);
+
+    }
+
+    private void refreshFilter() {
+        if (adapter != null) {
+            adapter.clearRecyclerView();
+            searchElementEditText.getText().clear();
+            page = 0;
+        }
     }
 }
 
