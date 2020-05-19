@@ -24,6 +24,10 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
         this.onElementClickListener = onElementClickListener;
     }
 
+    public void clearRecyclerView(){
+        elementList.clear();
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public ElementViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -68,6 +72,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
             });
         }
     }
+
     interface OnElementClickListener {
         void onClick(int position);
     }

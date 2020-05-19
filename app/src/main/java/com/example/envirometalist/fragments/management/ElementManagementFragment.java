@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.Optional;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import retrofit2.Call;
@@ -41,18 +42,20 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class ElementManagementFragment extends Fragment implements AdapterView.OnItemSelectedListener, ElementAdapter.OnElementClickListener {
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    private ElementAdapter adapter;
     private ElementService elementService;
     private ArrayList<Element> elementList;
     private String filter;
+    private String stringFilter;
     private static int page = 0;
     private static final int SIZE = 10;
-
+    private EditText searchElementEditText;
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_elements_manager, container, false);
         // Spinner view configuration
         Spinner spinner = root.findViewById(R.id.searchCategorySpinner);
-        EditText searchElementEditText = root.findViewById(R.id.searchElementEditText);
+        searchElementEditText = root.findViewById(R.id.searchElementEditText);
+
         elementList = new ArrayList<>();
         ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.search_filter_spinner, android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(filterAdapter);
@@ -63,7 +66,8 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
         recyclerView = root.findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
-
+        adapter = new ElementAdapter(elementList, ElementManagementFragment.this);
+        recyclerView.setAdapter(adapter);
         // Init retrofit for async call
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(ElementService.BASE_URL)
@@ -72,7 +76,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
 
         // Inject instance to element service
         elementService = retrofit.create(ElementService.class);
-        getAllElements("Jonathan@gmail.com", SIZE, page++);
+        getAllElements("Jonathan@gmail.com", SIZE, page);
 
         // ===================================================================================///
         // Adding items to listview
@@ -80,35 +84,36 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-
                 if (!recyclerView.canScrollVertically(1)) {
-                    Toast.makeText(getActivity(), "Last", Toast.LENGTH_LONG).show();
-                    //TODO CHECK THE FILTER
-                    getAllElements("Jonathan@gmail.com", SIZE, page++);
+                    switch (filter) {
+                        case "All":
+                            getAllElements("Jonathan@gmail.com", SIZE, page++);
+                            break;
+                        case "Name":
+                            getElementsByName("Jonathan@gmail.com", stringFilter, SIZE, page++);
+                            break;
+                        case "Type":
+                            getElementByType("Jonathan@gmail.com", stringFilter, SIZE, page++);
+                            break;
+                    }
                 }
             }
         });
 
         // ===================================================================================///
         searchElementEditText.addTextChangedListener(new TextWatcher() {
-
-
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                Log.i(TAG, "beforeTextChanged: " + cs.toString());
-                getElementsByName("Jonathan@gmail.com", cs.toString(), SIZE, 0);
+                if (!cs.toString().isEmpty() && filter.equals("Name"))
+                    getElementsByName("Jonathan@gmail.com", cs.toString(), SIZE, page);
+                else if (!cs.toString().isEmpty() && filter.equals("Type"))
+                    getElementByType("Jonathan@gmail.com", cs.toString(), SIZE, page);
             }
-
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override
-            public void afterTextChanged(Editable s) {
-            }
+            public void afterTextChanged(Editable s) { }
         });
-        // Get the elements from the server
-        //  getAllElements("Jonathan@gmail.com",10, 0);
         return root;
     }
 
@@ -117,8 +122,17 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         filter = parent.getItemAtPosition(position).toString();
-        Toast.makeText(getActivity(), filter, Toast.LENGTH_SHORT).show();
+        if(adapter != null){
+            adapter.clearRecyclerView();
+            searchElementEditText.getText().clear();
+            page = 0;
+        }if(filter.equals("All")){
+            getAllElements("Jonathan@gmail.com", SIZE, page++);
+        }
+
     }
+
+
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
@@ -149,8 +163,8 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                             return;
                         }
                         Collections.addAll(elementList, Objects.requireNonNull(response.body()));
-                        adapter = new ElementAdapter(elementList, ElementManagementFragment.this);
-                        recyclerView.setAdapter(adapter);
+                        adapter.notifyDataSetChanged();
+
                     }
 
                     @Override
@@ -170,8 +184,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                     return;
                 }
                 Collections.addAll(elementList, Objects.requireNonNull(response.body()));
-                adapter = new ElementAdapter(elementList, ElementManagementFragment.this);
-                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -191,8 +204,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                     return;
                 }
                 Collections.addAll(elementList, Objects.requireNonNull(response.body()));
-                adapter = new ElementAdapter(elementList, ElementManagementFragment.this);
-                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -201,6 +213,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
             }
         });
     }
+
 
     private void sweetAlert(String title, String content) {
         new SweetAlertDialog(getActivity(), SweetAlertDialog.ERROR_TYPE)
