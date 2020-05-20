@@ -1,4 +1,4 @@
-package com.example.envirometalist.fragments.slideshow;
+package com.example.envirometalist.fragments.manager.home;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,13 +10,12 @@ import androidx.fragment.app.Fragment;
 
 import com.example.envirometalist.R;
 
-public class SlideshowFragment extends Fragment {
+public class HomeFragment extends Fragment {
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
-        View root = inflater.inflate(R.layout.fragment_slideshow, container, false);
-
+        View root = inflater.inflate(R.layout.fragment_home, container, false);
         return root;
     }
 }

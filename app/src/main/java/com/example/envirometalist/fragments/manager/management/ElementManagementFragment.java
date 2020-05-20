@@ -1,15 +1,16 @@
-package com.example.envirometalist.fragments.management;
+package com.example.envirometalist.fragments.manager.management;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.envirometalist.ManagerActivity;
 import com.example.envirometalist.R;
 import com.example.envirometalist.model.Element;
 import com.example.envirometalist.services.ElementService;
@@ -43,22 +45,29 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
     private ElementService elementService;
     private ArrayList<Element> elementList;
     private EditText searchElementEditText;
+    private ProgressBar progressBar;
+    private Context mActivity;
     private static String filter;
     private static int page = 0;
     private static final int SIZE = 10;
+
     // TODO GET THE MANAGER EMAIL FROM THE LOGIN ACTIVITY
     private String managerEmail = "Jonathan@gmail.com";
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_elements_manager, container, false);
+        View root = inflater.inflate(R.layout.fragment_elements_search, container, false);
 
         searchElementEditText = root.findViewById(R.id.searchElementEditText);
         Spinner spinner = root.findViewById(R.id.searchCategorySpinner);
         recyclerView = root.findViewById(R.id.recyclerView);
+        progressBar = root.findViewById(R.id.progressbar);
         elementList = new ArrayList<>();
 
         // Spinner Configuration
-        ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.search_filter_spinner, android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(
+                getActivity(),
+                R.array.search_filter_spinner,
+                android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(filterAdapter);
         spinner.setOnItemSelectedListener(this);
 
@@ -83,6 +92,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (!recyclerView.canScrollVertically(1)) {
+                    progressBar.setVisibility(View.VISIBLE);
                     setSearchFilter(managerEmail, filter, page++);
                 }
             }
@@ -91,11 +101,11 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
         searchElementEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                refreshFilter(false);
+                refreshFilter(false); // TODO CHANGE NAME
                 if (filter.equals(SearchFilter.Name.name()))
-                    getElementsByName(managerEmail, cs.toString(), SIZE, page);
+                    getElementsByName(managerEmail, "%" + cs.toString() + "%", SIZE, page);
                 else if (filter.equals(SearchFilter.Type.name()))
-                    getElementByType(managerEmail, cs.toString(), SIZE, page);
+                    getElementByType(managerEmail, "%" + cs.toString() + "%", SIZE, page);
 
             }
 
@@ -148,11 +158,13 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                         }
                         Collections.addAll(elementList, Objects.requireNonNull(response.body()));
                         adapter.notifyDataSetChanged();
+                        progressBar.setVisibility(View.GONE);
                     }
 
                     @Override
                     public void onFailure(@NotNull Call<Element[]> call, Throwable t) {
                         sweetAlert("Fatal error", "Something went wrong \n " + t.getMessage());
+                        progressBar.setVisibility(View.GONE);
                     }
                 });
     }
@@ -169,11 +181,13 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                 }
                 Collections.addAll(elementList, Objects.requireNonNull(response.body()));
                 adapter.notifyDataSetChanged();
+                progressBar.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(@NotNull Call<Element[]> call, Throwable t) {
                 sweetAlert("Fatal error", "Something went wrong \n " + t.getMessage());
+                progressBar.setVisibility(View.GONE);
 
             }
         });
@@ -191,17 +205,20 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                 }
                 Collections.addAll(elementList, Objects.requireNonNull(response.body()));
                 adapter.notifyDataSetChanged();
+                progressBar.setVisibility(View.GONE);
             }
             @Override
             public void onFailure(@NotNull Call<Element[]> call, Throwable t) {
                 sweetAlert("Fatal error", "Something went wrong \n " + t.getMessage());
+                progressBar.setVisibility(View.GONE);
+
             }
         });
     }
 
 
     private void sweetAlert(String title, String content) {
-        new SweetAlertDialog(getActivity(), SweetAlertDialog.ERROR_TYPE)
+        new SweetAlertDialog(mActivity, SweetAlertDialog.ERROR_TYPE)
                 .setTitleText(title)
                 .setContentText(content)
                 .show();
@@ -225,6 +242,15 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
         if (clearSearchField)
             searchElementEditText.getText().clear();
 
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof ManagerActivity){
+            mActivity =(ManagerActivity) context;
+        }
     }
 }
 
