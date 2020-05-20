@@ -10,13 +10,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.envirometalist.R;
+import com.example.envirometalist.RecycleBinType;
+import com.example.envirometalist.RecycleTypes;
 import com.example.envirometalist.model.Element;
 
 import java.util.List;
 
-enum RecycleType {
-    PAPER, GLASS, TRASH, BOTTLE
-}
+
 
 public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementViewHolder>  {
     private List<Element> elementList;
@@ -48,7 +48,8 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
         holder.elementActiveTextView.setText(String.format("Active: %s", currentElement.getActive()));
         holder.elementCreator.setText(String.format("Creator: %s",currentElement.getCreatedBy().getUserEmail()));
         holder.elementDateCreation.setText(String.format("Creation Date: %s", currentElement.getCreatedTimestamp()));
-        setImageViewResource(holder,currentElement);
+        holder.elementImageView.setImageResource(RecycleBinType.getRecycleBinImage(RecycleTypes.valueOf(currentElement.getType())));
+
     }
 
     @Override
@@ -75,23 +76,6 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
                 if(onElementListener != null)
                     onElementListener.onClick(getAdapterPosition());
             });
-        }
-    }
-    private void setImageViewResource(ElementViewHolder elementViewHolder,Element element) {
-        RecycleType recycleType = RecycleType.valueOf(element.getType());
-        switch (recycleType) {
-            case PAPER:
-                elementViewHolder.elementImageView.setImageResource(R.drawable.paper);
-                break;
-            case GLASS:
-                elementViewHolder.elementImageView.setImageResource(R.drawable.glass);
-                break;
-            case TRASH:
-                elementViewHolder.elementImageView.setImageResource(R.drawable.trash);
-                break;
-            case BOTTLE:
-                elementViewHolder.elementImageView.setImageResource(R.drawable.bottle);
-                break;
         }
     }
 

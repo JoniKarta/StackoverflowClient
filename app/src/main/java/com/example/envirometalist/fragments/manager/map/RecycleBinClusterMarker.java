@@ -3,14 +3,12 @@ package com.example.envirometalist.fragments.manager.map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.envirometalist.R;
+import com.example.envirometalist.RecycleBinType;
+import com.example.envirometalist.RecycleTypes;
 import com.example.envirometalist.model.Element;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
-enum RecycleType {
-    PAPER, GLASS, TRASH, BOTTLE
-}
 
 public class RecycleBinClusterMarker implements ClusterItem {
     private String snippet;
@@ -26,7 +24,7 @@ public class RecycleBinClusterMarker implements ClusterItem {
         this.snippet = snippet;
         this.element = element;
         position = new LatLng(element.getLocation().getLat(), element.getLocation().getLng());
-        setImageMarker();
+        iconPicture = RecycleBinType.getRecycleBinImage(RecycleTypes.valueOf(element.getType()));
     }
 
     @NonNull
@@ -71,22 +69,6 @@ public class RecycleBinClusterMarker implements ClusterItem {
         this.iconPicture = iconPicture;
     }
 
-    private void setImageMarker() {
-        RecycleType recycleType = RecycleType.valueOf(element.getType());
-        switch (recycleType) {
-            case PAPER:
-                setIconPicture(R.drawable.paper);
-                break;
-            case GLASS:
-                setIconPicture(R.drawable.glass);
-                break;
-            case TRASH:
-                setIconPicture(R.drawable.trash);
-                break;
-            case BOTTLE:
-                setIconPicture(R.drawable.bottle);
-                break;
-        }
-    }
-
 }
+
+
