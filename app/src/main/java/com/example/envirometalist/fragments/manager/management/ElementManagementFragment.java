@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,7 +110,6 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                     getElementsByName(managerEmail, cs.toString() + "%", SIZE, page);
                 else if (filter.equals(SearchFilter.Type.name()))
                     getElementByType(managerEmail, cs.toString() + "%", SIZE, page);
-
             }
 
             @Override

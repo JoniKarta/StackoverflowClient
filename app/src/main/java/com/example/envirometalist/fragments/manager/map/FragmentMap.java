@@ -1,17 +1,26 @@
 package com.example.envirometalist.fragments.manager.map;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.text.method.DigitsKeyListener;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.envirometalist.R;
 import com.example.envirometalist.model.Element;
 import com.example.envirometalist.services.ElementService;
+import com.example.envirometalist.utility.CreateElementDialog;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -19,10 +28,13 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,7 +43,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
-public class FragmentMap extends Fragment {
+public class FragmentMap extends Fragment implements CreateElementDialog.DialogListener {
+
+
     private GoogleMap googleMaps;
     private ClusterManager<RecycleBinClusterMarker> clusterManager;
     private ClusterManagerRender clusterManagerRender;
@@ -49,6 +63,7 @@ public class FragmentMap extends Fragment {
         if (getActivity() != null) {
             MapsInitializer.initialize(getActivity().getApplicationContext());
         }
+
 
         // Init retrofit for http request
         Retrofit retrofit = new Retrofit.Builder()
@@ -69,6 +84,8 @@ public class FragmentMap extends Fragment {
                 addMapMarkers();
                 googleMaps.moveCamera(cu);
                 googleMaps.animateCamera(CameraUpdateFactory.zoomTo(14), 2000, null);
+                showMarkerLocation();
+
             });
         });
         return root;
@@ -90,16 +107,17 @@ public class FragmentMap extends Fragment {
                     @Override
                     public void onResponse(Call<Element[]> call, Response<Element[]> response) {
                         if (!response.isSuccessful()) {
+
                         }
                         Element[] all = response.body();
                         for (Element element : all) {
                             RecycleBinClusterMarker rec = new RecycleBinClusterMarker("Snippet", element);
                             recycleBinClusterMarkerArrayList.add(rec);
                             clusterManager.addItem(rec);
+
                         }
                         clusterManager.cluster();
                     }
-
                     @Override
                     public void onFailure(Call<Element[]> call, Throwable t) {
                     }
@@ -107,5 +125,45 @@ public class FragmentMap extends Fragment {
         );
     }
 
-}
+    private void showMarkerLocation() {
+        googleMaps.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                Toast.makeText(getActivity(), "Only a test" + latLng.toString(), Toast.LENGTH_SHORT).show();
+                CreateElementDialog dialog = new CreateElementDialog(getActivity(),FragmentMap.this);
+                dialog.show();
+                // getField
+                // create cluster
 
+
+
+
+            }
+        });
+    }
+
+    @Override
+    public void applySetting(Element element) {
+        Toast.makeText(getActivity(), "finished create element", Toast.LENGTH_SHORT).show();
+        elementService.createElement("Jonathan@gmail.com",element).enqueue(new Callback<Element>() {
+            @Override
+            public void onResponse(Call<Element> call, Response<Element> response) {
+                if(!response.isSuccessful()){
+                    // sweet alert
+                }else{
+                    RecycleBinClusterMarker rec = new RecycleBinClusterMarker("Snippet", element);
+                    clusterManager.addItem(rec);
+                    clusterManager.cluster();
+                    googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(28.464800,77.221230),18.0f));
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<Element> call, Throwable t) {
+
+            }
+        });
+
+    }
+}
