@@ -2,6 +2,7 @@ package com.example.envirometalist.model;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 
 public class Element {
 
@@ -90,6 +91,19 @@ public class Element {
 
     public void setElementAttribute(Map<String, Object> elementAttribute) {
         this.elementAttribute = elementAttribute;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Element element = (Element) o;
+        return elementId.equals(element.elementId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(elementId);
     }
 
     @Override

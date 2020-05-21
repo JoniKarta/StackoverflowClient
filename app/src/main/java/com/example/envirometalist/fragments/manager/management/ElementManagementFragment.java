@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
+
 // TODO GET THE USERNAME FROM THE MANAGER ACTIVITY
 
 public class ElementManagementFragment extends Fragment implements AdapterView.OnItemSelectedListener, ElementAdapter.OnElementClickListener {
@@ -61,6 +64,8 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
         Spinner spinner = root.findViewById(R.id.searchCategorySpinner);
         recyclerView = root.findViewById(R.id.recyclerView);
         progressBar = root.findViewById(R.id.progressbar);
+
+        // ArrayList of elements which will be passed to the recycler view
         elementList = new ArrayList<>();
 
         // Spinner Configuration
@@ -93,7 +98,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                 super.onScrollStateChanged(recyclerView, newState);
                 if (!recyclerView.canScrollVertically(1)) {
                     progressBar.setVisibility(View.VISIBLE);
-                    setSearchFilter(managerEmail, filter, page++);
+                    getDataFromServerByFilter(managerEmail, filter, ++page);
                 }
             }
         });
@@ -101,11 +106,11 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
         searchElementEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                refreshFilter(false); // TODO CHANGE NAME
+                clearCurrentResults();
                 if (filter.equals(SearchFilter.Name.name()))
-                    getElementsByName(managerEmail, "%" + cs.toString() + "%", SIZE, page);
+                    getElementsByName(managerEmail, cs.toString() + "%", SIZE, page);
                 else if (filter.equals(SearchFilter.Type.name()))
-                    getElementByType(managerEmail, "%" + cs.toString() + "%", SIZE, page);
+                    getElementByType(managerEmail, cs.toString() + "%", SIZE, page);
 
             }
 
@@ -117,16 +122,18 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
             public void afterTextChanged(Editable s) {
             }
         });
+
         return root;
     }
 
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        refreshFilter(true);
-        filter = parent.getItemAtPosition(position).toString();
-        setSearchFilter(managerEmail, filter, page);
-
+        searchElementEditText.getText().clear();
+        clearCurrentResults();
+        filter = getCurrentFilter(parent.getItemAtPosition(position).toString());
+        getDataFromServerByFilter(managerEmail, filter, page);
+        progressBar.setVisibility(View.GONE);
     }
 
 
@@ -146,6 +153,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
 //                .commit();
     }
 
+    // Async task
 
     private void getAllElements(String managerEmail, int size, int page) {
         elementService.getAllElements(managerEmail, size, page)
@@ -170,7 +178,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
     }
 
     private void getElementsByName(String managerEmail, String name, int size, int page) {
-        if (name.isEmpty())
+        if (name.isEmpty() || name.equals("%"))
             return;
         elementService.searchElementByName(managerEmail, name, size, page).enqueue(new Callback<Element[]>() {
             @Override
@@ -182,6 +190,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                 Collections.addAll(elementList, Objects.requireNonNull(response.body()));
                 adapter.notifyDataSetChanged();
                 progressBar.setVisibility(View.GONE);
+
             }
 
             @Override
@@ -194,7 +203,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
     }
 
     private void getElementByType(String managerEmail, String type, int size, int page) {
-        if (type.isEmpty())
+        if (type.isEmpty() || type.equals("%"))
             return;
         elementService.searchElementByType(managerEmail, type, size, page).enqueue(new Callback<Element[]>() {
             @Override
@@ -207,6 +216,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                 adapter.notifyDataSetChanged();
                 progressBar.setVisibility(View.GONE);
             }
+
             @Override
             public void onFailure(@NotNull Call<Element[]> call, Throwable t) {
                 sweetAlert("Fatal error", "Something went wrong \n " + t.getMessage());
@@ -224,7 +234,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                 .show();
     }
 
-    private void setSearchFilter(String managerEmail, String filter, int page) {
+    private void getDataFromServerByFilter(String managerEmail, String filter, int page) {
         if (SearchFilter.All.name().equals(filter))
             getAllElements(managerEmail, SIZE, page);
         else if (SearchFilter.Name.name().equals(filter))
@@ -234,23 +244,33 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
 
     }
 
-    private void refreshFilter(boolean clearSearchField) {
+    private String getCurrentFilter(String filter) {
+        String updateFilter = null;
+        if (SearchFilter.All.name().equals(filter))
+            updateFilter = filter;
+        else if (SearchFilter.Name.name().equals(filter))
+            updateFilter = filter;
+        else if (SearchFilter.Type.name().equals(filter))
+            updateFilter = filter;
+        return updateFilter;
+    }
+
+
+    private void clearCurrentResults() {
         if (adapter != null) {
             adapter.clearRecyclerView();
             page = 0;
         }
-        if (clearSearchField)
-            searchElementEditText.getText().clear();
-
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if (context instanceof ManagerActivity){
-            mActivity =(ManagerActivity) context;
+        if (context instanceof ManagerActivity) {
+            mActivity = (ManagerActivity) context;
         }
     }
+
 }
 
