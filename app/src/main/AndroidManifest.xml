@@ -19,12 +19,7 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.AppCompat.NoActionBar"
         android:usesCleartextTraffic="true">
-        <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_manager"
-            android:theme="@style/NoActionBar">
 
-        </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -37,7 +32,13 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
         <activity android:name=".ManagerActivity" />
-        <activity android:name=".AdminActivity">
+        <activity
+            android:name=".AdminActivity"
+            android:label="@string/title_activity_manager"
+            android:theme="@style/NoActionBar">
+
+        </activity>
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -3,7 +3,6 @@ package com.example.envirometalist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -31,11 +30,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class LoginActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private UserService userService;
     private EditText emailLoginEditText;
-    private String role;
-    private Spinner loginSpinnerList;
     private LoadingBarDialog loadingBarDialog;
     private Button loginButton;
     private Button signUpButton;
+    private String selectedRole;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,16 +53,12 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
 
     private void loginListener() {
         loginButton.setOnClickListener(v -> {
-            boolean dirty = false;
             String email = emailLoginEditText.getText().toString().trim();
 
             if (!Validator.isValidEmail(email)) {
-                dirty = true;
                 emailLoginEditText.setError("Not valid email");
-            }
-            if (dirty)
                 return;
-
+            }
             signInWithUserEmail(email);
         });
     }
@@ -78,7 +72,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
     private void initLoginUI() {
         loadingBarDialog = new LoadingBarDialog(this);
         emailLoginEditText = findViewById(R.id.emailLoginEditText);
-        loginSpinnerList = findViewById(R.id.loginRoleSpinnerList);
+        Spinner loginSpinnerList = findViewById(R.id.loginRoleSpinnerList);
 
         ArrayAdapter<UserRole> roleArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, UserRole.values());
         roleArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -103,10 +97,19 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                     return;
                 }
                 User user = response.body();
-                if (user != null && user.getRole().name().compareTo(role) == 0) {
+                if (user != null && user.getRole().name().equals(selectedRole)) {
                     // Login successfully
-                    Log.i("TAG", "onResponse: " + response.body());
-                    startActivity(new Intent(LoginActivity.this, ManagerActivity.class));
+                    switch (user.getRole()) {
+                        case PLAYER:
+                            startActivity(new Intent(LoginActivity.this, PlayerActivity.class).putExtra("User",user));
+                            break;
+                        case MANAGER:
+                            startActivity(new Intent(LoginActivity.this, ManagerActivity.class).putExtra("User",user));
+                            break;
+                        case ADMIN:
+                            startActivity(new Intent(LoginActivity.this, AdminActivity.class).putExtra("User",user));
+                            break;
+                    }
                     // TODO Move to the chosen role activity
                     finish();
                 } else {
@@ -115,7 +118,6 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                             .setContentText("You don't have those permissions!\n" + response.code())
                             .show();
                 }
-
             }
 
             @Override
@@ -144,7 +146,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        role = parent.getItemAtPosition(position).toString();
+        selectedRole = parent.getItemAtPosition(position).toString();
     }
 
     @Override
