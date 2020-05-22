@@ -10,8 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.envirometalist.R;
-import com.example.envirometalist.RecycleBinType;
-import com.example.envirometalist.RecycleTypes;
+import com.example.envirometalist.utility.RecycleBinType;
+import com.example.envirometalist.model.RecycleTypes;
 import com.example.envirometalist.model.Element;
 
 import java.util.List;

@@ -37,12 +37,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static androidx.constraintlayout.widget.Constraints.TAG;
-
 // TODO GET THE USERNAME FROM THE MANAGER ACTIVITY
 
 public class ElementManagementFragment extends Fragment implements AdapterView.OnItemSelectedListener, ElementAdapter.OnElementClickListener {
-    private RecyclerView recyclerView;
     private ElementAdapter adapter;
     private ElementService elementService;
     private ArrayList<Element> elementList;
@@ -61,7 +58,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
 
         searchElementEditText = root.findViewById(R.id.searchElementEditText);
         Spinner spinner = root.findViewById(R.id.searchCategorySpinner);
-        recyclerView = root.findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = root.findViewById(R.id.recyclerView);
         progressBar = root.findViewById(R.id.progressbar);
 
         // ArrayList of elements which will be passed to the recycler view

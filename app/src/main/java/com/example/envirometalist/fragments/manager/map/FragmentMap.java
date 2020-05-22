@@ -19,7 +19,9 @@ import androidx.fragment.app.Fragment;
 
 import com.example.envirometalist.R;
 import com.example.envirometalist.model.Element;
+import com.example.envirometalist.model.Location;
 import com.example.envirometalist.services.ElementService;
+import com.example.envirometalist.testing.UsersOperation;
 import com.example.envirometalist.utility.CreateElementDialog;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -51,7 +53,7 @@ public class FragmentMap extends Fragment implements CreateElementDialog.DialogL
     private ClusterManagerRender clusterManagerRender;
     private ElementService elementService;
     private ArrayList<RecycleBinClusterMarker> recycleBinClusterMarkerArrayList;
-
+    private UsersOperation usersOperation;
     // TODO GET THE USER LOCATION AND DISPLAY IT ON THE VIEW
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,6 +65,7 @@ public class FragmentMap extends Fragment implements CreateElementDialog.DialogL
         if (getActivity() != null) {
             MapsInitializer.initialize(getActivity().getApplicationContext());
         }
+
 
 
         // Init retrofit for http request
@@ -126,25 +129,18 @@ public class FragmentMap extends Fragment implements CreateElementDialog.DialogL
     }
 
     private void showMarkerLocation() {
-        googleMaps.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                Toast.makeText(getActivity(), "Only a test" + latLng.toString(), Toast.LENGTH_SHORT).show();
-                CreateElementDialog dialog = new CreateElementDialog(getActivity(),FragmentMap.this);
-                dialog.show();
-                // getField
-                // create cluster
+        googleMaps.setOnMapClickListener(latLng -> {
+            Element element = new Element();
+            element.setLocation(new Location(latLng.latitude,latLng.longitude));
+            CreateElementDialog dialog = new CreateElementDialog(getActivity(),FragmentMap.this, element);
+            dialog.show();
 
-
-
-
-            }
         });
     }
 
     @Override
     public void applySetting(Element element) {
-        Toast.makeText(getActivity(), "finished create element", Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "applySetting: " + element);
         elementService.createElement("Jonathan@gmail.com",element).enqueue(new Callback<Element>() {
             @Override
             public void onResponse(Call<Element> call, Response<Element> response) {
@@ -154,7 +150,6 @@ public class FragmentMap extends Fragment implements CreateElementDialog.DialogL
                     RecycleBinClusterMarker rec = new RecycleBinClusterMarker("Snippet", element);
                     clusterManager.addItem(rec);
                     clusterManager.cluster();
-                    googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(28.464800,77.221230),18.0f));
                 }
 
             }

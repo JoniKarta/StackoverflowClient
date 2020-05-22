@@ -18,7 +18,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class ManagerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class PlayerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;

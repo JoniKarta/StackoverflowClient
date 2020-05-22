@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.envirometalist.logic.Validator;
 import com.example.envirometalist.model.User;
+import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.UserService;
 import com.example.envirometalist.utility.LoadingBarDialog;
 
@@ -78,8 +79,8 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
         loadingBarDialog = new LoadingBarDialog(this);
         emailLoginEditText = findViewById(R.id.emailLoginEditText);
         loginSpinnerList = findViewById(R.id.loginRoleSpinnerList);
-        String[] roles = {"PLAYER", "MANAGER", "ADMIN"};
-        ArrayAdapter<String> roleArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, roles);
+
+        ArrayAdapter<UserRole> roleArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, UserRole.values());
         roleArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         loginSpinnerList.setAdapter(roleArrayAdapter);
         loginSpinnerList.setOnItemSelectedListener(this);
@@ -105,7 +106,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                 if (user != null && user.getRole().name().compareTo(role) == 0) {
                     // Login successfully
                     Log.i("TAG", "onResponse: " + response.body());
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    startActivity(new Intent(LoginActivity.this, ManagerActivity.class));
                     // TODO Move to the chosen role activity
                     finish();
                 } else {
@@ -144,7 +145,6 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         role = parent.getItemAtPosition(position).toString();
-
     }
 
     @Override

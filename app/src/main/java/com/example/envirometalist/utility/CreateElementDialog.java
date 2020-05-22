@@ -2,8 +2,8 @@ package com.example.envirometalist.utility;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -11,58 +11,94 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.envirometalist.R;
-import com.example.envirometalist.fragments.manager.map.FragmentMap;
+import com.example.envirometalist.model.RecycleTypes;
 import com.example.envirometalist.model.Element;
-import com.example.envirometalist.model.Location;
 
-public class CreateElementDialog  extends Dialog{
+import java.util.Collections;
+
+public class CreateElementDialog extends Dialog implements AdapterView.OnItemSelectedListener {
     private DialogListener dialogListener;
 
     private EditText elementName;
-    private Spinner  elementType;
+    private Spinner elementType;
     private CheckBox elementActive;
-    private EditText elementCapacity;
+    private Spinner elementCapacity;
     private Button okButton;
     private Button cancelButton;
+    private Element element;
 
 
-    public CreateElementDialog(@NonNull Context context, DialogListener listener) {
+    public CreateElementDialog(@NonNull Context context, DialogListener dialogListener, Element element) {
         super(context);
-        dialogListener = listener;
+
         setContentView(R.layout.add_element_dialog);
-        elementName = findViewById(R.id.name);
-        elementType = findViewById(R.id.type);
-        elementActive = findViewById(R.id.active);
-        elementCapacity = findViewById(R.id.capacity);
-        okButton = findViewById(R.id.OK);
-        cancelButton = findViewById(R.id.CANCEL);
-//        String[] roles = {"PLAYER", "MANAGER", "ADMIN"};
-//        ArrayAdapter<String> roleArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, roles);
-//        roleArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        private String elementId; // In the ElementBoundary it was String
-//        private String type;
-//        private String name;
-//        private boolean active;
-//        private Date createdTimestamp;
-//        private Creator createdBy; // createdBy was a Creator class
-//        private Location location;
-//        private Map<String, Object> elementAttribute;
-//    public Element() {
-        okButton.setOnClickListener(v -> dialogListener.applySetting(new Element(null,
-                "PAPER",
-                "paper",
-                true,
-                null,
-                null,
-                new Location(28.464800,77.221230),null)));
+        this.dialogListener = dialogListener;
+        this.element = element;
+        initUI();
+        ArrayAdapter<RecycleTypes> binTypesArrayAdapter = new ArrayAdapter<>(
+                context,
+                android.R.layout.simple_selectable_list_item,
+                RecycleTypes.values());
+        binTypesArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        elementType.setAdapter(binTypesArrayAdapter);
+
+        ArrayAdapter<String> capacityAdapter = new ArrayAdapter<>(
+                context,
+                android.R.layout.simple_selectable_list_item,
+                new String[]{"10", "50", "100", "800"});
+        capacityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        elementType.setOnItemSelectedListener(this);
+        elementCapacity.setOnItemSelectedListener(this);
+        elementCapacity.setAdapter(capacityAdapter);
+        okButton.setOnClickListener(v -> {
+            String name = elementName.getText().toString();
+            if (name.isEmpty()) {
+                elementName.setError("No explicit name");
+                return;
+            }
+            element.setName(name);
+            element.setActive(elementActive.isChecked());
+            if (this.dialogListener != null) {
+                this.dialogListener.applySetting(element);
+            }
+            dismiss();
+
+        });
+        cancelButton.setOnClickListener(v -> {
+            dismiss();
+        });
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        switch (parent.getId()) {
+            case R.id.typeSpinner:
+                element.setType(parent.getItemAtPosition(position).toString());
+                break;
+            case R.id.capacitySpinner:
+                element.setElementAttribute(Collections.singletonMap("Capacity", parent.getItemAtPosition(position).toString()));
+                break;
+        }
 
     }
-   public interface DialogListener {
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    public interface DialogListener {
         void applySetting(Element element);
+    }
+
+    private void initUI() {
+        elementName = findViewById(R.id.nameEditText);
+        elementType = findViewById(R.id.typeSpinner);
+        elementActive = findViewById(R.id.activeCheckBox);
+        elementCapacity = findViewById(R.id.capacitySpinner);
+        okButton = findViewById(R.id.createButton);
+        cancelButton = findViewById(R.id.cancelButton);
     }
 }

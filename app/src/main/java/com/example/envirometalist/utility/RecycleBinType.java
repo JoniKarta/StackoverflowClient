@@ -1,5 +1,8 @@
-package com.example.envirometalist;
+package com.example.envirometalist.utility;
 
+
+import com.example.envirometalist.R;
+import com.example.envirometalist.model.RecycleTypes;
 
 public final class RecycleBinType {
 
