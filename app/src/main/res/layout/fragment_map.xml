@@ -5,17 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#5A5858"
-    tools:context=".MainActivity">
+    >
 
-    <fragment
-        android:id="@+id/elementsMapFragment"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="4dp" />
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"

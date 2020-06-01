@@ -47,6 +47,9 @@ dependencies {
     // Gson converter
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
 
+    // Jackson converter
+    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
+
     // OK http for testing only
     implementation("com.squareup.okhttp3:okhttp:4.5.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.5.0")

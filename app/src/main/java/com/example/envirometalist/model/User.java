@@ -9,6 +9,9 @@ public class User implements Serializable {
     private String userName;
     private String avatar;
 
+    public User(){
+
+    }
     public User(String email, UserRole role, String userName, String avatar) {
         this.email = email;
         this.role = role;

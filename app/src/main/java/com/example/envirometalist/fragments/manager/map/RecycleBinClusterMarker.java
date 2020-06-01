@@ -62,6 +62,7 @@ public class RecycleBinClusterMarker implements ClusterItem {
     }
 
     public int getIconPicture() {
+        iconPicture = RecycleBinType.getRecycleBinImage(RecycleTypes.valueOf(element.getType()));
         return iconPicture;
     }
 

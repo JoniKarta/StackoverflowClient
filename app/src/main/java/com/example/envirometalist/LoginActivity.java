@@ -19,6 +19,7 @@ import com.example.envirometalist.model.User;
 import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.UserService;
 import com.example.envirometalist.utility.LoadingBarDialog;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import retrofit2.Call;
@@ -26,6 +27,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 public class LoginActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private UserService userService;

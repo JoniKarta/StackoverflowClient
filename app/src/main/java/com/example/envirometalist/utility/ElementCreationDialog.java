@@ -18,7 +18,7 @@ import com.example.envirometalist.model.Element;
 
 import java.util.Collections;
 
-public class CreateElementDialog extends Dialog implements AdapterView.OnItemSelectedListener {
+public class ElementCreationDialog extends Dialog implements AdapterView.OnItemSelectedListener {
     private DialogListener dialogListener;
 
     private EditText elementName;
@@ -30,7 +30,7 @@ public class CreateElementDialog extends Dialog implements AdapterView.OnItemSel
     private Element element;
 
 
-    public CreateElementDialog(@NonNull Context context, DialogListener dialogListener, Element element) {
+    public ElementCreationDialog(@NonNull Context context, DialogListener dialogListener, Element element) {
         super(context);
 
         setContentView(R.layout.add_element_dialog);
@@ -61,7 +61,8 @@ public class CreateElementDialog extends Dialog implements AdapterView.OnItemSel
             element.setName(name);
             element.setActive(elementActive.isChecked());
             if (this.dialogListener != null) {
-                this.dialogListener.applySetting(element);
+                dismiss();
+                this.dialogListener.onFinish(element);
             }
             dismiss();
 
@@ -90,7 +91,7 @@ public class CreateElementDialog extends Dialog implements AdapterView.OnItemSel
     }
 
     public interface DialogListener {
-        void applySetting(Element element);
+        void onFinish(Element element);
     }
 
     private void initUI() {
