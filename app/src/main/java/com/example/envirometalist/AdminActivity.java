@@ -6,9 +6,6 @@ import android.view.MenuItem;
 
 import com.example.envirometalist.fragments.manager.home.HomeFragment;
 import com.example.envirometalist.fragments.manager.management.ElementManagementFragment;
-import com.example.envirometalist.fragments.manager.map.FragmentMap;
-import com.example.envirometalist.model.User;
-import com.example.envirometalist.model.UserRole;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;

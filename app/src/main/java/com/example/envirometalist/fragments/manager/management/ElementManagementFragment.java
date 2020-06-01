@@ -36,6 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 // TODO GET THE USERNAME FROM THE MANAGER ACTIVITY
 
@@ -82,7 +83,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
         // Init retrofit for async call
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(ElementService.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(JacksonConverterFactory.create())
                 .build();
 
         // Inject instance to element service

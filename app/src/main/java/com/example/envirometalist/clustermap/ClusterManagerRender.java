@@ -1,4 +1,4 @@
-package com.example.envirometalist.fragments.manager.map;
+package com.example.envirometalist.clustermap;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,7 +8,6 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 
 import com.example.envirometalist.R;
-import com.example.envirometalist.fragments.manager.map.RecycleBinClusterMarker;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;

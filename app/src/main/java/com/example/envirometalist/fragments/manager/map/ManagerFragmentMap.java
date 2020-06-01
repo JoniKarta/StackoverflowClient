@@ -10,15 +10,20 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.envirometalist.LoginActivity;
 import com.example.envirometalist.R;
+import com.example.envirometalist.clustermap.ClusterManagerRender;
+import com.example.envirometalist.clustermap.RecycleBinClusterMarker;
 import com.example.envirometalist.model.Element;
 import com.example.envirometalist.model.Location;
+import com.example.envirometalist.model.RecycleTypes;
 import com.example.envirometalist.model.User;
 import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.ElementService;
 
 import com.example.envirometalist.utility.ElementCreationDialog;
 import com.example.envirometalist.utility.ElementManagementDialog;
+import com.example.envirometalist.utility.RecycleBinType;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +32,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 
 
@@ -35,15 +41,19 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 
-public class FragmentMap extends Fragment implements ElementCreationDialog.DialogListener, ElementManagementDialog.OnManagerManagementCallback {
+public class ManagerFragmentMap extends Fragment implements ElementCreationDialog.DialogListener, ElementManagementDialog.OnManagerManagementCallback {
     private GoogleMap googleMaps;
     private ClusterManager<RecycleBinClusterMarker> clusterManager;
     private ClusterManagerRender clusterManagerRender;
     private ElementService elementService;
     private User userManager;
     private MapView mMapView;
+    private RecycleBinClusterMarker  currentItemView;
     // TODO GET THE USER LOCATION AND DISPLAY IT ON THE VIEW
 
 
@@ -60,7 +70,7 @@ public class FragmentMap extends Fragment implements ElementCreationDialog.Dialo
         // Init retrofit for http request
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(ElementService.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(JacksonConverterFactory.create())
                 .build();
         elementService = retrofit.create(ElementService.class);
 
@@ -79,7 +89,6 @@ public class FragmentMap extends Fragment implements ElementCreationDialog.Dialo
                 loadElementsFromServer();
                 onMapClicked();
                 setOnClusterItemClick();
-                onMarkerClicked();
             });
         });
 
@@ -104,19 +113,11 @@ public class FragmentMap extends Fragment implements ElementCreationDialog.Dialo
         googleMaps.setOnMapClickListener(latLng -> {
             Element element = new Element();
             element.setLocation(new Location(latLng.latitude, latLng.longitude));
-            ElementCreationDialog elementCreationDialog = new ElementCreationDialog(getActivity(), FragmentMap.this, element);
+            ElementCreationDialog elementCreationDialog = new ElementCreationDialog(getActivity(), ManagerFragmentMap.this, element);
             elementCreationDialog.show();
         });
     }
-    private void onMarkerClicked(){
-        googleMaps.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                marker.showInfoWindow();
-                return false;
-            }
-        });
-    }
+
 
 
 
@@ -145,7 +146,8 @@ public class FragmentMap extends Fragment implements ElementCreationDialog.Dialo
 
     private void setOnClusterItemClick(){
       clusterManager.setOnClusterItemClickListener(item -> {
-          ElementManagementDialog elementManagementDialog = new ElementManagementDialog(getActivity(),item.getElement(),FragmentMap.this);
+          currentItemView = item;
+          ElementManagementDialog elementManagementDialog = new ElementManagementDialog(getActivity(),item.getElement(), ManagerFragmentMap.this);
           elementManagementDialog.show();
           return false;
       });
@@ -177,7 +179,8 @@ public class FragmentMap extends Fragment implements ElementCreationDialog.Dialo
     @Override
     public void onUpdate(Element element) {
         // TODO GET THE ELEMENT SENT IT TO THE SERVER FOR UPDATE
-        Log.i("TAG", "onFinish: "  + element);
+        Log.i(TAG, "onUpdate: " );
+        currentItemView.setIconPicture(RecycleBinType.getRecycleBinImage(RecycleTypes.valueOf(element.getType())));
         elementService.updateElement(userManager.getEmail(), element.getElementId(),element).enqueue(new Callback<Void>() {
 
             @Override
@@ -185,7 +188,9 @@ public class FragmentMap extends Fragment implements ElementCreationDialog.Dialo
                 if(!response.isSuccessful()){
                     // TODO THROW EXCEPTION
                 }
+                Log.i(TAG, "onResponse: update should happen but element on the map didn't changed");
                 clusterManager.cluster();
+
             }
 
             @Override

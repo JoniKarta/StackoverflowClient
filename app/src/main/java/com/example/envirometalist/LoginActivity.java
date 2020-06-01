@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(UserService.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(JacksonConverterFactory.create())
                 .build();
 
         userService = retrofit.create(UserService.class);

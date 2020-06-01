@@ -2,16 +2,13 @@ package com.example.envirometalist.utility;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -47,8 +44,6 @@ public class ElementManagementDialog extends Dialog implements AdapterView.OnIte
     public ElementManagementDialog(@NonNull Context context, Element element, OnManagerManagementCallback onManagerManagementCallback) {
         super(context);
         setContentView(R.layout.manager_management_dialog);
-        setCanceledOnTouchOutside(false);
-        Log.i("TAG", "ElementManagementDialog: " + element);
         // This variable hold the element which going to be updated
         this.element = element;
 

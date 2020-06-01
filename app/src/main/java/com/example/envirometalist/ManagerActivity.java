@@ -6,7 +6,7 @@ import android.view.MenuItem;
 
 import com.example.envirometalist.fragments.manager.home.HomeFragment;
 import com.example.envirometalist.fragments.manager.management.ElementManagementFragment;
-import com.example.envirometalist.fragments.manager.map.FragmentMap;
+import com.example.envirometalist.fragments.manager.map.ManagerFragmentMap;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
@@ -57,7 +57,7 @@ public class ManagerActivity extends AppCompatActivity implements NavigationView
             fragmentTransaction.replace(R.id.fragmentContainer, new ElementManagementFragment());
         }
         if (item.getItemId() == R.id.nav_management) {
-            fragmentTransaction.replace(R.id.fragmentContainer, new FragmentMap());
+            fragmentTransaction.replace(R.id.fragmentContainer, new ManagerFragmentMap());
         }
         fragmentTransaction.commit();
         return true;

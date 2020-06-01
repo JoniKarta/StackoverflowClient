@@ -6,16 +6,16 @@ public class User implements Serializable {
 
     private String email;
     private UserRole role;
-    private String userName;
+    private String username;
     private String avatar;
 
     public User(){
 
     }
-    public User(String email, UserRole role, String userName, String avatar) {
+    public User(String email, UserRole role, String username, String avatar) {
         this.email = email;
         this.role = role;
-        this.userName = userName;
+        this.username = username;
         this.avatar = avatar;
     }
 
@@ -27,8 +27,8 @@ public class User implements Serializable {
         return role;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
     public String getAvatar() {
@@ -40,7 +40,7 @@ public class User implements Serializable {
         return "UserEntity{" +
                 "email='" + email + '\'' +
                 ", role=" + role +
-                ", userName='" + userName + '\'' +
+                ", userName='" + username + '\'' +
                 ", avatar='" + avatar + '\'' +
                 '}';
     }

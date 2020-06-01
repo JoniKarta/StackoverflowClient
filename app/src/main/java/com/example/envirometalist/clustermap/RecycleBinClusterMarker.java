@@ -1,11 +1,11 @@
-package com.example.envirometalist.fragments.manager.map;
+package com.example.envirometalist.clustermap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.envirometalist.utility.RecycleBinType;
-import com.example.envirometalist.model.RecycleTypes;
 import com.example.envirometalist.model.Element;
+import com.example.envirometalist.model.RecycleTypes;
+import com.example.envirometalist.utility.RecycleBinType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
