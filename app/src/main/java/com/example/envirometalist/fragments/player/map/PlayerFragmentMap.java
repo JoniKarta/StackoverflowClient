@@ -1,6 +1,7 @@
 package com.example.envirometalist.fragments.player.map;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +13,13 @@ import com.example.envirometalist.R;
 import com.example.envirometalist.clustermap.ClusterManagerRender;
 import com.example.envirometalist.clustermap.RecycleBinClusterMarker;
 import com.example.envirometalist.fragments.manager.map.ManagerFragmentMap;
+import com.example.envirometalist.model.Action;
 import com.example.envirometalist.model.Element;
+import com.example.envirometalist.model.ElementId;
+import com.example.envirometalist.model.Invoker;
 import com.example.envirometalist.model.User;
 import com.example.envirometalist.model.UserRole;
+import com.example.envirometalist.services.ActionService;
 import com.example.envirometalist.services.ElementService;
 import com.example.envirometalist.utility.UserReportDialog;
 import com.google.android.gms.maps.CameraUpdate;
@@ -32,7 +37,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
-public class PlayerFragmentMap extends Fragment {
+public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnReportReadyListener {
     private GoogleMap googleMaps;
     private ClusterManager<RecycleBinClusterMarker> clusterManager;
     private ClusterManagerRender clusterManagerRender;
@@ -40,6 +45,7 @@ public class PlayerFragmentMap extends Fragment {
     private User userManager;
     private MapView mMapView;
     private RecycleBinClusterMarker currentItemView;
+    private ActionService actionService;
     // TODO GET THE USER LOCATION AND DISPLAY IT ON THE VIEW
 
 
@@ -51,16 +57,25 @@ public class PlayerFragmentMap extends Fragment {
         userManager = new User("Jonathan@gmail.com", UserRole.MANAGER, "Joni", ";)");
 
         initRetrofit();
+        initActionRetrofit();
         getMapAsync();
-
         return root;
 
+    }
+    private void initActionRetrofit(){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ActionService.BASE_URL)
+                .addConverterFactory(JacksonConverterFactory.create())
+                .build();
+        actionService = retrofit.create(ActionService.class);
     }
 
     private void onClusterItemClick() {
         clusterManager.setOnClusterItemClickListener(item -> {
             currentItemView = item;
-            UserReportDialog userReportDialog = new UserReportDialog(getActivity(), item.getElement(), PlayerFragmentMap.this);
+            UserReportDialog userReportDialog = new
+                    UserReportDialog(getActivity(), item.getElement(),
+                    this);
             userReportDialog.show();
             return false;
         });
@@ -129,5 +144,21 @@ public class PlayerFragmentMap extends Fragment {
         });
     }
 
+    @Override
+    public void onFinishReport(Action action) {
+        actionService.invokeAction(action).enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                if(response.isSuccessful()){
+                    Log.i("TAG","SUCCESS!");
+                }else
+                    Log.i("TAG","FAIL!");
+            }
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+
+            }
+        });
+    }
 }
 

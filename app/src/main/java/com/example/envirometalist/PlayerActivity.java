@@ -1,12 +1,20 @@
 package com.example.envirometalist;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.renderscript.Element;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -15,13 +23,17 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.envirometalist.fragments.manager.home.HomeFragment;
 import com.example.envirometalist.fragments.manager.management.ElementManagementFragment;
 import com.example.envirometalist.fragments.player.map.PlayerFragmentMap;
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Picasso;
 
 public class PlayerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-
+    private ImageTakenListener imageTakenListener;
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
     private DrawerLayout drawerLayout;
@@ -66,4 +78,52 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
         return true;
     }
 
+    Uri imageUri;
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK && data != null) {
+
+            switch (requestCode) {
+                case 0: // From GALLERY
+                    imageUri = data.getData();
+                    Log.i("gallery","outside glide");
+                    Glide.with(this)
+                            .asBitmap()
+                            .load(imageUri)
+                            .into(new CustomTarget<Bitmap>() {
+                                @Override
+                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                    if (imageUri != null && imageTakenListener != null) {
+                                        Log.i("gallery","insideIf");
+                                        imageTakenListener.onFinishProcImage(resource);
+                                    }
+                                    Log.i("gallery","outside if");
+                                }
+
+                                @Override
+                                public void onLoadCleared(@Nullable Drawable placeholder) {
+                                }
+                            });
+
+                    break;
+                case 1: // From camera
+                    if (imageUri != null && imageTakenListener != null) {
+                        Log.i("camera","inside if");
+                        imageTakenListener.onFinishProcImage((Bitmap) data.getExtras().get("data"));
+                    }
+                    Log.i("camera","outside if");
+                    break;
+            }
+        }
+    }
+    public interface ImageTakenListener {
+        void onFinishProcImage(Bitmap bitmap);
+    }
+
+    public void setImageTakenListener(ImageTakenListener imageTakenListener){
+        Log.i("setImage","setImage");
+        this.imageTakenListener = imageTakenListener;
+    }
 }

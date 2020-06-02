@@ -6,7 +6,7 @@ import java.util.Map;
 public class Action {
     private String type;
     private String actionId;
-    private Element element;
+    private ElementId element;
     private Date createdTimestamp;
     private Invoker invokedBy;
     private Map<String, Object> actionAttributes;
@@ -14,7 +14,7 @@ public class Action {
     public Action() {
     }
 
-    public Action(String type, String actionId, Element element, Date createdTimestamp, Invoker invokedBy, Map<String, Object> actionAttributes) {
+    public Action(String type, String actionId, ElementId element, Date createdTimestamp, Invoker invokedBy, Map<String, Object> actionAttributes) {
         this.type = type;
         this.actionId = actionId;
         this.element = element;
@@ -31,7 +31,7 @@ public class Action {
         return actionId;
     }
 
-    public Element getElement() {
+    public ElementId getElement() {
         return element;
     }
 
