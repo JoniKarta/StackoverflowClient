@@ -2,23 +2,23 @@ package com.example.envirometalist;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.renderscript.Element;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.envirometalist.fragments.manager.home.HomeFragment;
 import com.example.envirometalist.fragments.manager.management.ElementManagementFragment;
 import com.example.envirometalist.fragments.player.map.PlayerFragmentMap;
 import com.google.android.material.navigation.NavigationView;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.core.view.GravityCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 public class PlayerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -29,7 +29,7 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_manager);
+        setContentView(R.layout.hum_menu_player);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -53,13 +53,13 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
         drawerLayout.closeDrawer(GravityCompat.START);
         fragmentTransaction = fragmentManager.beginTransaction();
         if (item.getItemId() == R.id.nav_home) {
-            fragmentTransaction.replace(R.id.fragmentContainer, new HomeFragment());
-        }
-        if (item.getItemId() == R.id.nav_search) {
             fragmentTransaction.replace(R.id.fragmentContainer, new PlayerFragmentMap());
         }
+        if (item.getItemId() == R.id.nav_search) {
+            fragmentTransaction.replace(R.id.fragmentContainer, new ElementManagementFragment());
+        }
         if (item.getItemId() == R.id.nav_logout){
-            Toast.makeText(this, "test", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(PlayerActivity.this,LoginActivity.class));
             finish();
         }
         fragmentTransaction.commit();
