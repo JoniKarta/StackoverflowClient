@@ -2,6 +2,7 @@ package com.example.envirometalist.fragments.manager.management;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -95,6 +96,8 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
                 super.onScrollStateChanged(recyclerView, newState);
                 if (!recyclerView.canScrollVertically(1)) {
                     progressBar.setVisibility(View.VISIBLE);
+                    Handler handler = new Handler();
+                    handler.postDelayed(() -> progressBar.setVisibility(View.GONE), 3000);
                     getDataFromServerByFilter(managerEmail, filter, ++page);
                 }
             }

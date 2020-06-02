@@ -1,7 +1,6 @@
 package com.example.envirometalist.fragments.manager.map;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,20 +9,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.envirometalist.LoginActivity;
 import com.example.envirometalist.R;
 import com.example.envirometalist.clustermap.ClusterManagerRender;
 import com.example.envirometalist.clustermap.RecycleBinClusterMarker;
 import com.example.envirometalist.model.Element;
 import com.example.envirometalist.model.Location;
-import com.example.envirometalist.model.RecycleTypes;
 import com.example.envirometalist.model.User;
 import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.ElementService;
-
 import com.example.envirometalist.utility.ElementCreationDialog;
 import com.example.envirometalist.utility.ElementManagementDialog;
-import com.example.envirometalist.utility.RecycleBinType;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,19 +26,14 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
-
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 
 public class ManagerFragmentMap extends Fragment implements ElementCreationDialog.DialogListener, ElementManagementDialog.OnManagerManagementCallback {
@@ -63,17 +53,27 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();
         userManager = new User("Jonathan@gmail.com", UserRole.MANAGER, "Joni", ";)");
-        if (getActivity() != null) {
-            MapsInitializer.initialize(getActivity().getApplicationContext());
-        }
 
-        // Init retrofit for http request
+        initRetrofit();
+        getMapAsync();
+
+
+        return root;
+
+    }
+
+    private void initRetrofit() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(ElementService.BASE_URL)
                 .addConverterFactory(JacksonConverterFactory.create())
                 .build();
         elementService = retrofit.create(ElementService.class);
+    }
 
+    private void getMapAsync() {
+        if (getActivity() != null) {
+            MapsInitializer.initialize(getActivity().getApplicationContext());
+        }
         // Set google maps
         mMapView.getMapAsync(mMap -> {
             googleMaps = mMap;
@@ -88,13 +88,9 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
                 googleMaps.animateCamera(CameraUpdateFactory.zoomTo(14), 2000, null);
                 loadElementsFromServer();
                 onMapClicked();
-                setOnClusterItemClick();
+                onClusterItemClick();
             });
         });
-
-
-        return root;
-
     }
 
     private void initClusterManager() {
@@ -119,8 +115,6 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
     }
 
 
-
-
     private void loadElementsFromServer(){
         elementService.getAllElements(userManager.getEmail(),20,0).enqueue(new Callback<Element[]>() {
             @Override
@@ -133,10 +127,8 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
                     RecycleBinClusterMarker recycleBinClusterMarker = new RecycleBinClusterMarker("Snippet", element);
                     clusterManager.addItem(recycleBinClusterMarker);
                     clusterManager.cluster();
-
                 }
             }
-
             @Override
             public void onFailure(Call<Element[]> call, Throwable t) {
 
@@ -144,7 +136,7 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
         });
     }
 
-    private void setOnClusterItemClick(){
+    private void onClusterItemClick(){
       clusterManager.setOnClusterItemClickListener(item -> {
           currentItemView = item;
           ElementManagementDialog elementManagementDialog = new ElementManagementDialog(getActivity(),item.getElement(), ManagerFragmentMap.this);
@@ -177,20 +169,16 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
 
 
     @Override
-    public void onUpdate(Element element) {
-        // TODO GET THE ELEMENT SENT IT TO THE SERVER FOR UPDATE
-        Log.i(TAG, "onUpdate: " );
-        currentItemView.setIconPicture(RecycleBinType.getRecycleBinImage(RecycleTypes.valueOf(element.getType())));
-        elementService.updateElement(userManager.getEmail(), element.getElementId(),element).enqueue(new Callback<Void>() {
+    public void onUpdate(Element updatedElement) {
+        elementService.updateElement(userManager.getEmail(), updatedElement.getElementId(),updatedElement).enqueue(new Callback<Void>() {
 
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if(!response.isSuccessful()){
                     // TODO THROW EXCEPTION
                 }
-                Log.i(TAG, "onResponse: update should happen but element on the map didn't changed");
-                clusterManager.cluster();
-
+                googleMaps.clear();
+                loadElementsFromServer();
             }
 
             @Override
@@ -201,10 +189,6 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
         Toast.makeText(getActivity(), "onUpdate", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onRemove(boolean remove) {
-        // TODO REMOVE THE ELEMENT FROM THE SERVER AND FROM THE MAP
-        Toast.makeText(getActivity(), "onRemove", Toast.LENGTH_SHORT).show();
-    }
+
 }
 

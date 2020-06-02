@@ -28,7 +28,6 @@ public class ElementManagementDialog extends Dialog implements AdapterView.OnIte
     private CheckBox elementActive;
     private Spinner elementCapacitySpinner;
     private Button updateButton;
-    private Button removeButton;
     private Element element;
 
     // Listener for update element
@@ -43,7 +42,7 @@ public class ElementManagementDialog extends Dialog implements AdapterView.OnIte
 
     public ElementManagementDialog(@NonNull Context context, Element element, OnManagerManagementCallback onManagerManagementCallback) {
         super(context);
-        setContentView(R.layout.manager_management_dialog);
+        setContentView(R.layout.dialog_update_element);
         // This variable hold the element which going to be updated
         this.element = element;
 
@@ -99,14 +98,6 @@ public class ElementManagementDialog extends Dialog implements AdapterView.OnIte
 
         });
 
-        // Remove Button to remove the selected item
-        removeButton.setOnClickListener(v -> {
-            if (onManagerManagementCallback != null) {
-                onManagerManagementCallback.onRemove(true);
-            }
-            dismiss();
-
-        });
 
     }
 
@@ -116,7 +107,6 @@ public class ElementManagementDialog extends Dialog implements AdapterView.OnIte
         elementActive = findViewById(R.id.managerManagement_activeCheckBox);
         elementCapacitySpinner = findViewById(R.id.managerManagement_capacitySpinner);
         updateButton = findViewById(R.id.managerManagement_updateButton);
-        removeButton = findViewById(R.id.managerManagement_removeButton);
     }
 
     private void displayCurrentElementState() {
@@ -153,6 +143,5 @@ public class ElementManagementDialog extends Dialog implements AdapterView.OnIte
     public interface OnManagerManagementCallback {
         void onUpdate(Element element);
 
-        void onRemove(boolean remove);
     }
 }

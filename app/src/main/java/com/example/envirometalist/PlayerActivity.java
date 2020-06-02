@@ -1,7 +1,9 @@
 package com.example.envirometalist;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 import com.example.envirometalist.fragments.manager.home.HomeFragment;
@@ -55,6 +57,10 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
         }
         if (item.getItemId() == R.id.nav_search) {
             fragmentTransaction.replace(R.id.fragmentContainer, new PlayerFragmentMap());
+        }
+        if (item.getItemId() == R.id.nav_logout){
+            Toast.makeText(this, "test", Toast.LENGTH_SHORT).show();
+            finish();
         }
         fragmentTransaction.commit();
         return true;

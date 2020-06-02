@@ -33,7 +33,7 @@ public class ElementCreationDialog extends Dialog implements AdapterView.OnItemS
     public ElementCreationDialog(@NonNull Context context, DialogListener dialogListener, Element element) {
         super(context);
 
-        setContentView(R.layout.add_element_dialog);
+        setContentView(R.layout.dialog_add_element);
         this.dialogListener = dialogListener;
         this.element = element;
         initUI();
