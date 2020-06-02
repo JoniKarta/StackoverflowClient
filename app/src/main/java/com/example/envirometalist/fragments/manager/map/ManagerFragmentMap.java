@@ -1,6 +1,7 @@
 package com.example.envirometalist.fragments.manager.map;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -123,6 +124,7 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
                     // Throw unsuccessful operation
                 }
                 Element[] elements = response.body();
+                clusterManager.clearItems();
                 for(Element element : elements){
                     RecycleBinClusterMarker recycleBinClusterMarker = new RecycleBinClusterMarker("Snippet", element);
                     clusterManager.addItem(recycleBinClusterMarker);
@@ -176,6 +178,7 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if(!response.isSuccessful()){
                     // TODO THROW EXCEPTION
+                    Log.i("onUpdate","response failed");
                 }
                 googleMaps.clear();
                 loadElementsFromServer();
@@ -188,7 +191,5 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
         });
         Toast.makeText(getActivity(), "onUpdate", Toast.LENGTH_SHORT).show();
     }
-
-
 }
 
