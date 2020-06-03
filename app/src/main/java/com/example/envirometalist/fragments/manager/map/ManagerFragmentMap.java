@@ -25,6 +25,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.maps.android.clustering.ClusterManager;
@@ -102,6 +103,8 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
             if (clusterManagerRender == null) {
                 clusterManagerRender = new ClusterManagerRender(getActivity(), googleMaps, clusterManager);
             }
+
+            googleMaps.setOnCameraIdleListener(clusterManager);
             clusterManager.setRenderer(clusterManagerRender);
         }
     }
