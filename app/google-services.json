@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "976043753900",
+    "firebase_url": "https://stackoverflow-f29ba.firebaseio.com",
+    "project_id": "stackoverflow-f29ba",
+    "storage_bucket": "stackoverflow-f29ba.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:976043753900:android:5986be79a9d6cba14dfa09",
+        "android_client_info": {
+          "package_name": "com.example.envirometalist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "976043753900-7ej9f8c5oufo8tnh8a9stb54h72c0cof.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.envirometalist",
+            "certificate_hash": "c7844b07af8f59ae2aed67c8c8e06b81f6bb6b56"
+          }
+        },
+        {
+          "client_id": "976043753900-8516ptkg2f77p4nsn4mrhtm2ce4c27os.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSp7rTWBoHOh3nJN00L0jU3elcyiicT04"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "976043753900-8516ptkg2f77p4nsn4mrhtm2ce4c27os.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

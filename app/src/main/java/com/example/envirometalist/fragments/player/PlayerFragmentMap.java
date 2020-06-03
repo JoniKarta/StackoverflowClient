@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.envirometalist.LoginActivity;
 import com.example.envirometalist.PlayerActivity;
 import com.example.envirometalist.R;
 import com.example.envirometalist.RegisterActivity;
@@ -20,6 +21,7 @@ import com.example.envirometalist.model.User;
 import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.ActionService;
 import com.example.envirometalist.services.ElementService;
+import com.example.envirometalist.services.UserService;
 import com.example.envirometalist.utility.UserReportDialog;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -58,7 +60,7 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
         mMapView = root.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();
-        userManager = new User("Jonathan@gmail.com", UserRole.MANAGER, "Joni", ";)");
+        userManager = LoginActivity.user;
 
         initRetrofit();
         initActionRetrofit();

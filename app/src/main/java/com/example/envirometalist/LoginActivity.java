@@ -33,6 +33,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
 
     private UserService userService;
     private EditText emailLoginEditText;
+    public static User user;
     private LoadingBarDialog loadingBarDialog;
     private Button loginButton;
     private Button signUpButton;
@@ -99,7 +100,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                             .show();
                     return;
                 }
-                User user = response.body();
+                user = response.body();
                 if (user != null && user.getRole().name().equals(selectedRole)) {
                     // Login successfully
                     switch (user.getRole()) {

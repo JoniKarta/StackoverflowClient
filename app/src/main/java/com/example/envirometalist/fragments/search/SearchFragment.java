@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.envirometalist.LoginActivity;
 import com.example.envirometalist.ManagerActivity;
 import com.example.envirometalist.R;
 import com.example.envirometalist.model.Element;
@@ -52,7 +53,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
     private static final int SIZE = 10;
 
     // TODO GET THE MANAGER EMAIL FROM THE LOGIN ACTIVITY
-    private String managerEmail = "Jonathan@gmail.com";
+    private String managerEmail = LoginActivity.user.getEmail();
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_elements_search, container, false);
@@ -94,9 +95,11 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (!recyclerView.canScrollVertically(1)) {
-                    progressBar.setVisibility(View.VISIBLE);
-                    Handler handler = new Handler();
-                    handler.postDelayed(() -> progressBar.setVisibility(View.GONE), 3000);
+                    if (!filter.equals(SearchFilter.All.name())) {
+                        progressBar.setVisibility(View.VISIBLE);
+                        Handler handler = new Handler();
+                        handler.postDelayed(() -> progressBar.setVisibility(View.GONE), 3000);
+                    }
                     getDataFromServerByFilter(managerEmail, filter, ++page);
                 }
             }
