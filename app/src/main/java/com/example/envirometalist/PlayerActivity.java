@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.renderscript.Element;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,10 +31,12 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.envirometalist.fragments.manager.home.HomeFragment;
 import com.example.envirometalist.fragments.manager.management.ElementManagementFragment;
 import com.example.envirometalist.fragments.player.map.PlayerFragmentMap;
+import com.example.envirometalist.model.User;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 
 public class PlayerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private TextView userName,userEmail;
     private ImageTakenListener imageTakenListener;
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
@@ -45,13 +49,18 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawerLayout = findViewById(R.id.drawer_layout);
+        View view = getLayoutInflater().inflate(R.layout.hum_menu_player,null);
+        userName = view.findViewById(R.id.userName);
+        userEmail = view.findViewById(R.id.userEmail);
+
         NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         navigationView.setNavigationItemSelectedListener(this);
         actionBarDrawerToggle.syncState();
-
+        setUserName();
+        setUserEmail();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.fragmentContainer, new HomeFragment());
@@ -59,6 +68,15 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
 
     }
 
+    public void setUserName(){
+        User user = (User) getIntent().getExtras().get("User");
+//        userName.setText(user.getUsername());
+    }
+
+    public void setUserEmail(){
+        User user = (User) getIntent().getExtras().get("User");
+//        userEmail.setText(user.getEmail());
+    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {

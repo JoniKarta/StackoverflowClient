@@ -108,9 +108,6 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                         case MANAGER:
                             startActivity(new Intent(LoginActivity.this, ManagerActivity.class).putExtra("User",user));
                             break;
-                        case ADMIN:
-                            startActivity(new Intent(LoginActivity.this, AdminActivity.class).putExtra("User",user));
-                            break;
                     }
                     // TODO Move to the chosen role activity
                     finish();
