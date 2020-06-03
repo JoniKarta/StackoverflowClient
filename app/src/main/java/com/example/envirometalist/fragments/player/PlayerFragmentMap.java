@@ -1,4 +1,4 @@
-package com.example.envirometalist.fragments.player.map;
+package com.example.envirometalist.fragments.player;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -9,14 +9,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.envirometalist.PlayerActivity;
 import com.example.envirometalist.R;
+import com.example.envirometalist.RegisterActivity;
 import com.example.envirometalist.clustermap.ClusterManagerRender;
 import com.example.envirometalist.clustermap.RecycleBinClusterMarker;
-import com.example.envirometalist.fragments.manager.map.ManagerFragmentMap;
 import com.example.envirometalist.model.Action;
 import com.example.envirometalist.model.Element;
-import com.example.envirometalist.model.ElementId;
-import com.example.envirometalist.model.Invoker;
 import com.example.envirometalist.model.User;
 import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.ActionService;
@@ -27,11 +26,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.maps.android.clustering.ClusterManager;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -69,7 +72,8 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
         return root;
 
     }
-    private void initActionRetrofit(){
+
+    private void initActionRetrofit() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(ActionService.BASE_URL)
                 .addConverterFactory(JacksonConverterFactory.create())
@@ -131,23 +135,34 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
             clusterManager.setRenderer(clusterManagerRender);
         }
     }
-    private void loadElementsFromServer(){
-        elementService.getAllElements(userManager.getEmail(),20,0).enqueue(new Callback<Element[]>() {
-            @Override
-            public void onResponse(Call<Element[]> call, Response<Element[]> response) {
-                if(!response.isSuccessful()){
-                    // Throw unsuccessful operation
-                }
-                Element[] elements = response.body();
-                for(Element element : elements){
-                    RecycleBinClusterMarker recycleBinClusterMarker = new RecycleBinClusterMarker("Snippet", element);
-                    clusterManager.addItem(recycleBinClusterMarker);
-                    clusterManager.cluster();
-                }
-            }
-            @Override
-            public void onFailure(Call<Element[]> call, Throwable t) {
 
+    private void loadElementsFromServer() {
+        elementService.getAllElements(userManager.getEmail(), 20, 0).enqueue(new Callback<Element[]>() {
+            @Override
+            public void onResponse(@NotNull Call<Element[]> call, @NotNull Response<Element[]> response) {
+                if (!response.isSuccessful()) {
+                    new SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText("Oops..")
+                            .setContentText("Something went wrong!\n" + response.code())
+                            .show();
+                }
+                if (response.body() != null) {
+                    Element[] elements = response.body();
+                    for (Element element : elements) {
+                        RecycleBinClusterMarker recycleBinClusterMarker = new RecycleBinClusterMarker("Snippet", element);
+                        clusterManager.addItem(recycleBinClusterMarker);
+                        clusterManager.cluster();
+                    }
+                }
+
+            }
+
+            @Override
+            public void onFailure(@NotNull Call<Element[]> call, @NotNull Throwable t) {
+                new SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE)
+                        .setTitleText("Fatal error")
+                        .setContentText("Something went wrong!\n" + t.getMessage())
+                        .show();
             }
         });
     }
@@ -157,11 +172,12 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
         actionService.invokeAction(action).enqueue(new Callback<Object>() {
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
-                if(response.isSuccessful()){
-                    Log.i("TAG","SUCCESS!");
-                }else
-                    Log.i("TAG","FAIL!");
+                if (response.isSuccessful()) {
+                    Log.i("TAG", "SUCCESS!");
+                } else
+                    Log.i("TAG", "FAIL!");
             }
+
             @Override
             public void onFailure(Call<Object> call, Throwable t) {
 

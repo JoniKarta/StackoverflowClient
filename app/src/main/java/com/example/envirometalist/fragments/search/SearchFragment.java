@@ -1,4 +1,4 @@
-package com.example.envirometalist.fragments.manager.management;
+package com.example.envirometalist.fragments.search;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -36,12 +36,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 // TODO GET THE USERNAME FROM THE MANAGER ACTIVITY
 
-public class ElementManagementFragment extends Fragment implements AdapterView.OnItemSelectedListener, ElementAdapter.OnElementClickListener {
+public class SearchFragment extends Fragment implements AdapterView.OnItemSelectedListener, ElementAdapter.OnElementClickListener {
     private ElementAdapter adapter;
     private ElementService elementService;
     private ArrayList<Element> elementList;
@@ -78,7 +77,7 @@ public class ElementManagementFragment extends Fragment implements AdapterView.O
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new ElementAdapter(elementList, ElementManagementFragment.this);
+        adapter = new ElementAdapter(elementList, SearchFragment.this);
         recyclerView.setAdapter(adapter);
 
         // Init retrofit for async call

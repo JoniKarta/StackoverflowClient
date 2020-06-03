@@ -1,4 +1,4 @@
-package com.example.envirometalist.fragments.manager.management;
+package com.example.envirometalist.fragments.search;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,12 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.envirometalist.R;
-import com.example.envirometalist.utility.RecycleBinType;
-import com.example.envirometalist.model.RecycleTypes;
 import com.example.envirometalist.model.Element;
+import com.example.envirometalist.model.RecycleTypes;
+import com.example.envirometalist.utility.RecycleBinType;
 
 import java.util.List;
-
 
 
 public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementViewHolder>  {

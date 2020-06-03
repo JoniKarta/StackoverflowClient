@@ -2,7 +2,6 @@ package com.example.envirometalist;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -20,9 +19,9 @@ import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.UserService;
 import com.example.envirometalist.utility.LoadingBarDialog;
 
+import org.jetbrains.annotations.NotNull;
+
 import cn.pedant.SweetAlert.SweetAlertDialog;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,26 +37,50 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     private UserRole role;
     private LoadingBarDialog loadingBarDialog;
     private Button register;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         initRegisterUI();
+        initUserRetrofit();
+        register();
 
-        // For testing only
-        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .addInterceptor(httpLoggingInterceptor).build();
 
+
+    }
+
+    /**
+     * Init retrofit for making http requests for the server
+     */
+    private void initUserRetrofit() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(UserService.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
-                .client(okHttpClient) // client for testing only
                 .build();
 
         userService = retrofit.create(UserService.class);
+    }
 
+    /**
+     * Init all the ui of the register activity
+     */
+    private void initRegisterUI() {
+        email = findViewById(R.id.emailRegEditText);
+        userName = findViewById(R.id.userNameRegEditText);
+        avatar = findViewById(R.id.avatarRegEditText);
+        register = findViewById(R.id.registerButton);
+        loadingBarDialog = new LoadingBarDialog(this);
+        String[] strings = {"PLAYER", "MANAGER"};
+        Spinner spinnerRoleList = findViewById(R.id.roleSpinnerList);
+        ArrayAdapter<String> roleListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, strings);
+        roleListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerRoleList.setAdapter(roleListAdapter);
+        spinnerRoleList.setOnItemSelectedListener(this);
+    }
+
+    /** OnClickListener while the user pressed on the register button */
+    private void register(){
         register.setOnClickListener(v -> {
 
             boolean dirty = false;
@@ -80,33 +103,19 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
             loadingBarDialog.showDialog();
             User newUser = new User(email.getText().toString(), role, userName.getText().toString(), avatar.getText().toString());
-            // Async call - send the user to the server
             createUser(newUser);
         });
-
     }
 
-    private void initRegisterUI(){
-        email = findViewById(R.id.emailRegEditText);
-        userName = findViewById(R.id.userNameRegEditText);
-        avatar = findViewById(R.id.avatarRegEditText);
-        register = findViewById(R.id.registerButton);
-        loadingBarDialog = new LoadingBarDialog(this);
-        String[] strings = {"PLAYER", "MANAGER", "ADMIN"};
-        Spinner spinnerRoleList = findViewById(R.id.roleSpinnerList);
-        ArrayAdapter<String> roleListAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, strings);
-        roleListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerRoleList.setAdapter(roleListAdapter);
-        spinnerRoleList.setOnItemSelectedListener(this);
-    }
-
+    /**
+     * Async method for which send http POST request for create new user
+     */
     private void createUser(User newUser) {
         userService.createUser(newUser).enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(@NotNull Call<User> call, @NotNull Response<User> response) {
                 loadingBarDialog.dismissDialog();
                 if (!response.isSuccessful()) {
-                    Log.i("TAG", "onResponse: " + response.code());
                     new SweetAlertDialog(RegisterActivity.this, SweetAlertDialog.ERROR_TYPE)
                             .setTitleText("Fatal error")
                             .setContentText("Something went wrong!\n" + response.code())
@@ -114,11 +123,10 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
                     return;
                 }
                 finish();
-                Log.i("TAG", "onResponse: " + response.body());
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable t) {
+            public void onFailure(@NotNull Call<User> call, @NotNull Throwable t) {
                 loadingBarDialog.dismissDialog();
                 new SweetAlertDialog(RegisterActivity.this, SweetAlertDialog.ERROR_TYPE)
                         .setTitleText("Fatal error")
@@ -129,6 +137,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     }
 
 
+    /** OnItemSelectedListener which gets called while the user select role {PLAYER, MANAGER} */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String itemSelected = parent.getItemAtPosition(position).toString();

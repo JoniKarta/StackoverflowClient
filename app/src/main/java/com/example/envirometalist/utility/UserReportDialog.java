@@ -3,37 +3,22 @@ package com.example.envirometalist.utility;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.provider.MediaStore;
 import android.text.InputType;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.example.envirometalist.PlayerActivity;
 import com.example.envirometalist.R;
-import com.example.envirometalist.fragments.player.map.PlayerFragmentMap;
 import com.example.envirometalist.model.Action;
 import com.example.envirometalist.model.Element;
 import com.example.envirometalist.model.ElementId;
 import com.example.envirometalist.model.Invoker;
-import com.squareup.picasso.Picasso;
 
 import java.util.Collections;
 
@@ -59,7 +44,7 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
         uploadButt = findViewById(R.id.uploadButt);
         imageTaken = findViewById(R.id.uploadedPic);
 
-        ((PlayerActivity)activity).setImageTakenListener(this);
+        ((PlayerActivity) activity).setImageTakenListener(this);
         setCanceledOnTouchOutside(true);
         uploadButtListener();
         confirmButtListener();
@@ -67,9 +52,7 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
     }
 
     private void uploadButtListener() {
-        uploadButt.setOnClickListener(v -> {
-          selectImage();
-        });
+        uploadButt.setOnClickListener(v -> selectImage());
     }
 
     private void selectImage() {
@@ -98,9 +81,8 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
             RadioButton radioButton = rGroup.findViewById(radioButtonID);
             int position = rGroup.indexOfChild(radioButton);
 
-            String txtReport = "";
+            String txtReport;
             if (position != 3) {
-                Log.i("Radio", radioButton.getText().toString());
                 txtReport = radioButton.getText().toString();
             } else {
                 txtReport = otherText.getText().toString();
@@ -122,13 +104,12 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
 
             if (isChecked) {
                 chosenReportRadio = rGroup.indexOfChild(checkedRadioButton);
-                if(chosenReportRadio == 3/*Other radio butt*/){
+                if (chosenReportRadio == 3/*Other radio butt*/) {
                     otherText.setEnabled(true);
-                }else {
+                } else {
                     otherText.setInputType(InputType.TYPE_NULL);
                     otherText.setEnabled(false);
                 }
-                Toast.makeText(activity, "CHECKED!" + checkedRadioButton.getText(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -136,9 +117,9 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
     @Override
     public void onFinishProcImage(Bitmap bitmap) {
         imageTaken.setImageBitmap(bitmap);
-        Log.i("onFinish", "onFinish called!!");
     }
-    public interface OnReportReadyListener{
+
+    public interface OnReportReadyListener {
         void onFinishReport(Action action);
     }
 }

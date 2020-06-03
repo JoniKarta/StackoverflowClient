@@ -4,6 +4,7 @@ package com.example.envirometalist.utility;
 import com.example.envirometalist.R;
 import com.example.envirometalist.model.RecycleTypes;
 
+/** This is a helper class which handle conversion of recycle bin to it's relevant drawable view*/
 public final class RecycleBinType {
 
     public static int getRecycleBinImage(RecycleTypes recycleType) {

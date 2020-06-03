@@ -22,18 +22,14 @@ import java.util.Objects;
 
 public class ElementManagementDialog extends Dialog implements AdapterView.OnItemSelectedListener {
 
-    // Variable for update the elements
     private EditText elementName;
     private Spinner elementTypeSpinner;
     private CheckBox elementActive;
     private Spinner elementCapacitySpinner;
     private Button updateButton;
     private Element element;
-
-    // Listener for update element
     private OnManagerManagementCallback onManagerManagementCallback;
 
-    // Adapters for spinners
     private ArrayAdapter<RecycleTypes> binTypesArrayAdapter;
     private ArrayAdapter<String> capacityAdapter;
 
@@ -43,7 +39,6 @@ public class ElementManagementDialog extends Dialog implements AdapterView.OnIte
     public ElementManagementDialog(@NonNull Context context, Element element, OnManagerManagementCallback onManagerManagementCallback) {
         super(context);
         setContentView(R.layout.dialog_update_element);
-        // This variable hold the element which going to be updated
         this.element = element;
 
         // Callback variable which the map registered to

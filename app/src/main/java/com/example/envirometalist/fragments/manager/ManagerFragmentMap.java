@@ -1,4 +1,4 @@
-package com.example.envirometalist.fragments.manager.map;
+package com.example.envirometalist.fragments.manager;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +25,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.maps.android.clustering.ClusterManager;
@@ -37,7 +36,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 
-
 public class ManagerFragmentMap extends Fragment implements ElementCreationDialog.DialogListener, ElementManagementDialog.OnManagerManagementCallback {
     private GoogleMap googleMaps;
     private ClusterManager<RecycleBinClusterMarker> clusterManager;
@@ -45,7 +43,7 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
     private ElementService elementService;
     private User userManager;
     private MapView mMapView;
-    private RecycleBinClusterMarker  currentItemView;
+    private RecycleBinClusterMarker currentItemView;
     // TODO GET THE USER LOCATION AND DISPLAY IT ON THE VIEW
 
 
@@ -119,21 +117,22 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
     }
 
 
-    private void loadElementsFromServer(){
-        elementService.getAllElements(userManager.getEmail(),20,0).enqueue(new Callback<Element[]>() {
+    private void loadElementsFromServer() {
+        elementService.getAllElements(userManager.getEmail(), 20, 0).enqueue(new Callback<Element[]>() {
             @Override
             public void onResponse(Call<Element[]> call, Response<Element[]> response) {
-                if(!response.isSuccessful()){
+                if (!response.isSuccessful()) {
                     // Throw unsuccessful operation
                 }
                 Element[] elements = response.body();
                 clusterManager.clearItems();
-                for(Element element : elements){
+                for (Element element : elements) {
                     RecycleBinClusterMarker recycleBinClusterMarker = new RecycleBinClusterMarker("Snippet", element);
                     clusterManager.addItem(recycleBinClusterMarker);
                     clusterManager.cluster();
                 }
             }
+
             @Override
             public void onFailure(Call<Element[]> call, Throwable t) {
 
@@ -141,13 +140,13 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
         });
     }
 
-    private void onClusterItemClick(){
-      clusterManager.setOnClusterItemClickListener(item -> {
-          currentItemView = item;
-          ElementManagementDialog elementManagementDialog = new ElementManagementDialog(getActivity(),item.getElement(), ManagerFragmentMap.this);
-          elementManagementDialog.show();
-          return false;
-      });
+    private void onClusterItemClick() {
+        clusterManager.setOnClusterItemClickListener(item -> {
+            currentItemView = item;
+            ElementManagementDialog elementManagementDialog = new ElementManagementDialog(getActivity(), item.getElement(), ManagerFragmentMap.this);
+            elementManagementDialog.show();
+            return false;
+        });
     }
 
     // onFinish is a callback function which gets called when the manager finished create element.
@@ -175,13 +174,13 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
 
     @Override
     public void onUpdate(Element updatedElement) {
-        elementService.updateElement(userManager.getEmail(), updatedElement.getElementId(),updatedElement).enqueue(new Callback<Void>() {
+        elementService.updateElement(userManager.getEmail(), updatedElement.getElementId(), updatedElement).enqueue(new Callback<Void>() {
 
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                if(!response.isSuccessful()){
+                if (!response.isSuccessful()) {
                     // TODO THROW EXCEPTION
-                    Log.i("onUpdate","response failed");
+                    Log.i("onUpdate", "response failed");
                 }
                 googleMaps.clear();
                 loadElementsFromServer();

@@ -32,12 +32,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
         <activity android:name=".ManagerActivity" />
-        <activity
-            android:name=".AdminActivity"
-            android:label="@string/title_activity_manager"
-            android:theme="@style/NoActionBar">
-
-        </activity>
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

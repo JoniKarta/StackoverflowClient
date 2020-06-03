@@ -19,17 +19,18 @@ import com.example.envirometalist.model.User;
 import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.UserService;
 import com.example.envirometalist.utility.LoadingBarDialog;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.jetbrains.annotations.NotNull;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 public class LoginActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+
     private UserService userService;
     private EditText emailLoginEditText;
     private LoadingBarDialog loadingBarDialog;
@@ -42,15 +43,18 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         initLoginUI();
+        initUserRetrofit();
+        signUpListener();
+        loginListener();
+    }
 
+    private void initUserRetrofit() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(UserService.BASE_URL)
                 .addConverterFactory(JacksonConverterFactory.create())
                 .build();
 
         userService = retrofit.create(UserService.class);
-        signUpListener();
-        loginListener();
     }
 
     private void loginListener() {
@@ -66,16 +70,13 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
     private void signUpListener() {
-        signUpButton.setOnClickListener(v -> {
-            startActivity(new Intent(this, RegisterActivity.class));
-        });
+        signUpButton.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
     }
 
     private void initLoginUI() {
         loadingBarDialog = new LoadingBarDialog(this);
         emailLoginEditText = findViewById(R.id.emailLoginEditText);
         Spinner loginSpinnerList = findViewById(R.id.loginRoleSpinnerList);
-
         ArrayAdapter<UserRole> roleArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, UserRole.values());
         roleArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         loginSpinnerList.setAdapter(roleArrayAdapter);
@@ -89,7 +90,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
         loadingBarDialog.showDialog();
         userService.getUser(email).enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(@NotNull Call<User> call, @NotNull Response<User> response) {
                 loadingBarDialog.dismissDialog();
                 if (!response.isSuccessful()) {
                     new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
@@ -103,13 +104,12 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                     // Login successfully
                     switch (user.getRole()) {
                         case PLAYER:
-                            startActivity(new Intent(LoginActivity.this, PlayerActivity.class).putExtra("User",user));
+                            startActivity(new Intent(LoginActivity.this, PlayerActivity.class).putExtra("User", user));
                             break;
                         case MANAGER:
-                            startActivity(new Intent(LoginActivity.this, ManagerActivity.class).putExtra("User",user));
+                            startActivity(new Intent(LoginActivity.this, ManagerActivity.class).putExtra("User", user));
                             break;
                     }
-                    // TODO Move to the chosen role activity
                     finish();
                 } else {
                     new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
@@ -120,7 +120,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable t) {
+            public void onFailure(@NotNull Call<User> call, @NotNull Throwable t) {
                 loadingBarDialog.dismissDialog();
                 new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
                         .setTitleText("Fatal error")

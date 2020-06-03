@@ -7,12 +7,10 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.renderscript.Element;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,15 +26,17 @@ import androidx.fragment.app.FragmentTransaction;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.example.envirometalist.fragments.manager.home.HomeFragment;
-import com.example.envirometalist.fragments.manager.management.ElementManagementFragment;
-import com.example.envirometalist.fragments.player.map.PlayerFragmentMap;
+import com.example.envirometalist.fragments.player.PlayerFragmentMap;
+import com.example.envirometalist.fragments.search.SearchFragment;
 import com.example.envirometalist.model.User;
 import com.google.android.material.navigation.NavigationView;
-import com.squareup.picasso.Picasso;
+
+import java.util.Objects;
 
 public class PlayerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private TextView userName,userEmail;
+
+
+    private TextView userName, userEmail;
     private ImageTakenListener imageTakenListener;
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
@@ -49,7 +49,7 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawerLayout = findViewById(R.id.drawer_layout);
-        View view = getLayoutInflater().inflate(R.layout.hum_menu_player,null);
+        View view = getLayoutInflater().inflate(R.layout.hum_menu_player, null);
         userName = view.findViewById(R.id.userName);
         userEmail = view.findViewById(R.id.userEmail);
 
@@ -63,17 +63,17 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
         setUserEmail();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.fragmentContainer, new HomeFragment());
+        fragmentTransaction.add(R.id.fragmentContainer, new PlayerFragmentMap());
         fragmentTransaction.commit();
 
     }
 
-    public void setUserName(){
+    public void setUserName() {
         User user = (User) getIntent().getExtras().get("User");
 //        userName.setText(user.getUsername());
     }
 
-    public void setUserEmail(){
+    public void setUserEmail() {
         User user = (User) getIntent().getExtras().get("User");
 //        userEmail.setText(user.getEmail());
     }
@@ -86,16 +86,15 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
             fragmentTransaction.replace(R.id.fragmentContainer, new PlayerFragmentMap());
         }
         if (item.getItemId() == R.id.nav_search) {
-            fragmentTransaction.replace(R.id.fragmentContainer, new ElementManagementFragment());
+            fragmentTransaction.replace(R.id.fragmentContainer, new SearchFragment());
         }
-        if (item.getItemId() == R.id.nav_logout){
-            startActivity(new Intent(PlayerActivity.this,LoginActivity.class));
+        if (item.getItemId() == R.id.nav_logout) {
+            startActivity(new Intent(PlayerActivity.this, LoginActivity.class));
             finish();
         }
         fragmentTransaction.commit();
         return true;
     }
-
     Uri imageUri;
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
@@ -136,12 +135,18 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
             }
         }
     }
+
+    /**
+     * This is a callback interface which gets called while image processing from camera has been activated
+     */
     public interface ImageTakenListener {
         void onFinishProcImage(Bitmap bitmap);
     }
 
-    public void setImageTakenListener(ImageTakenListener imageTakenListener){
-        Log.i("setImage","setImage");
+    /**
+     * Register for the ImageTakenListener
+     */
+    public void setImageTakenListener(ImageTakenListener imageTakenListener) {
         this.imageTakenListener = imageTakenListener;
     }
 }

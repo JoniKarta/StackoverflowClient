@@ -67,9 +67,7 @@ public class ElementCreationDialog extends Dialog implements AdapterView.OnItemS
             dismiss();
 
         });
-        cancelButton.setOnClickListener(v -> {
-            dismiss();
-        });
+        cancelButton.setOnClickListener(v -> dismiss());
     }
 
     @Override
