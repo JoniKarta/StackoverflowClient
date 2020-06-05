@@ -44,7 +44,6 @@ public class ElementManagementDialog extends Dialog implements AdapterView.OnIte
         // Callback variable which the map registered to
         this.onManagerManagementCallback = onManagerManagementCallback;
 
-
         // Configure update elements widgets
         setElementUpdateUI();
 
@@ -89,11 +88,7 @@ public class ElementManagementDialog extends Dialog implements AdapterView.OnIte
                 this.onManagerManagementCallback.onUpdate(element);
             }
             dismiss();
-
-
         });
-
-
     }
 
     private void setElementUpdateUI() {

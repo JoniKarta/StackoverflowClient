@@ -109,7 +109,7 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
             }
             onReportReadyListener.onFinishReport(new Action(element.getType(),
                     null, new ElementId(element.getElementId()),
-                    null, new Invoker("Joni@gmail.com"),
+                    null, new Invoker(LoginActivity.user.getEmail()),
                     Collections.singletonMap("Report", txtReport)));
 
             uploadFile(uploadBitmap);

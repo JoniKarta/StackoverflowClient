@@ -1,5 +1,8 @@
 package com.example.envirometalist.fragments.player;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.envirometalist.LoginActivity;
@@ -17,6 +21,8 @@ import com.example.envirometalist.clustermap.ClusterManagerRender;
 import com.example.envirometalist.clustermap.RecycleBinClusterMarker;
 import com.example.envirometalist.model.Action;
 import com.example.envirometalist.model.Element;
+import com.example.envirometalist.model.ElementId;
+import com.example.envirometalist.model.Invoker;
 import com.example.envirometalist.model.User;
 import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.ActionService;
@@ -30,10 +36,18 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
@@ -66,11 +80,7 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
         initActionRetrofit();
         getMapAsync();
 
-
-     /*   googleMaps.setOnCameraMoveListener(() -> {
-            float zoom = googleMaps.getCameraPosition().zoom;
-            Log.i("zoom", "Zoom = " + zoom);
-        });*/
+        Log.i("myLocation:", "LAT= " + LoginActivity.latitude + " LNG= " + LoginActivity.longitude);
         return root;
 
     }
@@ -103,6 +113,7 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
         elementService = retrofit.create(ElementService.class);
     }
 
+    @SuppressLint("MissingPermission")
     private void getMapAsync() {
         if (getActivity() != null) {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -112,16 +123,28 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
             googleMaps = mMap;
             googleMaps.setOnMapLoadedCallback(() -> {
                 initClusterManager();
+                googleMaps.setMyLocationEnabled(true);
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                builder.include(new LatLng(28.580903, 77.317408)); //Taking Point A (First LatLng)
-                builder.include(new LatLng(28.583911, 77.319116)); //Taking Point B (Second LatLng)
+
+                builder.include(new LatLng(LoginActivity.latitude - 0.003708, LoginActivity.longitude - 0.003008));
+                builder.include(new LatLng(LoginActivity.latitude + 0.003708, LoginActivity.longitude + 0.003008));
+
                 LatLngBounds bounds = builder.build();
+
                 CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 200);
-                googleMaps.moveCamera(cu);
-                googleMaps.animateCamera(CameraUpdateFactory.zoomTo(14), 2000, null);
+                googleMaps.animateCamera(cu);
+
                 onClusterItemClick();
                 loadElementsFromServer();
+                cameraMoveLoadElementsListener();
             });
+        });
+    }
+
+    private void cameraMoveLoadElementsListener() {
+        googleMaps.setOnCameraIdleListener(() -> {
+            Log.i("MOVE", "CAMERA MOVE!");
+            loadElementsFromServer();
         });
     }
 
@@ -139,7 +162,45 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
     }
 
     private void loadElementsFromServer() {
-        elementService.getAllElements(userManager.getEmail(), 20, 0).enqueue(new Callback<Element[]>() {
+        Map<String, Object> attributes = new HashMap<>();
+        VisibleRegion visibleRegion = googleMaps.getProjection().getVisibleRegion();
+        LatLng northeast = visibleRegion.latLngBounds.northeast;
+        LatLng southwest = visibleRegion.latLngBounds.southwest;
+
+        attributes.put("minLat", southwest.latitude);
+        attributes.put("maxLat", northeast.latitude );
+        attributes.put("minLng", southwest.longitude);
+        attributes.put("maxLng", northeast.longitude);
+
+        actionService.getElementsInPerimeter(new Action("Perimeter",
+                null, null,
+                null, new Invoker(LoginActivity.user.getEmail()),
+                attributes)).enqueue(new Callback<Element[]>() {
+            @Override
+            public void onResponse(@NotNull Call<Element[]> call, @NotNull Response<Element[]> response) {
+                if (!response.isSuccessful()) {
+                    new SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText("Oops..")
+                            .setContentText("Something went wrong!\n" + response.code())
+                            .show();
+                }
+                if (response.body() != null) {
+                    Element[] elements = response.body();
+                    clusterManager.clearItems();
+                    for (Element element : elements) {
+                        RecycleBinClusterMarker recycleBinClusterMarker = new RecycleBinClusterMarker("Snippet", element);
+                        clusterManager.addItem(recycleBinClusterMarker);
+                        clusterManager.cluster();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Element[]> call, Throwable t) {
+
+            }
+        });
+/*        elementService.getAllElements(userManager.getEmail(), 20, 0).enqueue(new Callback<Element[]>() {
             @Override
             public void onResponse(@NotNull Call<Element[]> call, @NotNull Response<Element[]> response) {
                 if (!response.isSuccessful()) {
@@ -166,18 +227,19 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
                         .setContentText("Something went wrong!\n" + t.getMessage())
                         .show();
             }
-        });
+        });*/
     }
 
+    // @ TODO - CHECK WHY GOES TO FAIL!
     @Override
     public void onFinishReport(Action action) {
         actionService.invokeAction(action).enqueue(new Callback<Object>() {
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
                 if (response.isSuccessful()) {
-                    Log.i("TAG", "SUCCESS!");
+                    Log.i("onFinish", "SUCCESS!");
                 } else
-                    Log.i("TAG", "FAIL!");
+                    Log.i("onFinish", "FAIL!");
             }
 
             @Override

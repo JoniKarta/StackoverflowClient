@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -247,12 +248,19 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
 
     private String getCurrentFilter(String filter) {
         String updateFilter = null;
-        if (SearchFilter.All.name().equals(filter))
+        if (SearchFilter.All.name().equals(filter)) {
             updateFilter = filter;
-        else if (SearchFilter.Name.name().equals(filter))
+            searchElementEditText.setInputType(InputType.TYPE_NULL);
+            searchElementEditText.setEnabled(false);
+        }
+        else if (SearchFilter.Name.name().equals(filter)) {
             updateFilter = filter;
-        else if (SearchFilter.Type.name().equals(filter))
+            searchElementEditText.setEnabled(true);
+        }
+        else if (SearchFilter.Type.name().equals(filter)) {
             updateFilter = filter;
+            searchElementEditText.setEnabled(true);
+        }
         return updateFilter;
     }
 
