@@ -2,6 +2,8 @@ package com.example.envirometalist.utility;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -43,6 +45,9 @@ public class ElementCreationDialog extends Dialog implements AdapterView.OnItemS
                 RecycleTypes.values());
         binTypesArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         elementType.setAdapter(binTypesArrayAdapter);
+        if(getWindow() != null){
+            getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
         ArrayAdapter<String> capacityAdapter = new ArrayAdapter<>(
                 context,

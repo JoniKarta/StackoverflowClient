@@ -27,9 +27,9 @@ public class ClusterManagerRender extends DefaultClusterRenderer<RecycleBinClust
         imageView = new ImageView(context.getApplicationContext());
         int markerWidth = (int) context.getResources().getDimension(R.dimen.custom_marker_size);
         int markerHeight = (int) context.getResources().getDimension(R.dimen.custom_marker_size);
-        imageView.setLayoutParams(new ViewGroup.LayoutParams(markerWidth,markerHeight));
-        int padding = (int) context.getResources().getDimension(R.dimen.custom_marker_padding); // TODO CHANGE TO PADDING
-        imageView.setPadding(padding,padding,padding,padding);
+        imageView.setLayoutParams(new ViewGroup.LayoutParams(markerWidth, markerHeight));
+        int padding = (int) context.getResources().getDimension(R.dimen.custom_marker_padding); 
+        imageView.setPadding(padding, padding, padding, padding);
         iconGenerator.setContentView(imageView);
     }
 

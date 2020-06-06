@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.provider.MediaStore;
 import android.text.InputType;
 import android.widget.Button;
@@ -58,6 +60,9 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
         otherText = findViewById(R.id.other_text);
         uploadButt = findViewById(R.id.uploadButt);
         imageTaken = findViewById(R.id.uploadedPic);
+        if(getWindow() != null){
+            getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
 
         ((PlayerActivity) activity).setImageTakenListener(this);

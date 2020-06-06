@@ -44,18 +44,14 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
     private ClusterManagerRender clusterManagerRender;
     private ElementService elementService;
     private MapView mMapView;
-    private User managerUser;
-    private Location elementLocation;
+
     public ManagerFragmentMap(){
 
     }
     public ManagerFragmentMap(User managerUser){
 
-        this.managerUser = managerUser;
     }
     public ManagerFragmentMap(User managerUser,Location elementLocation){
-        this.managerUser = managerUser;
-        this.elementLocation = elementLocation;
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

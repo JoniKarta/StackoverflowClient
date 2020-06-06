@@ -17,16 +17,17 @@ import com.example.envirometalist.utility.RecycleBinType;
 import java.util.List;
 
 
-public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementViewHolder>  {
+public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementViewHolder> {
     private List<Element> elementList;
     private OnElementClickListener onElementClickListener;
 
-    public ElementAdapter(List<Element> elementList,OnElementClickListener onElementClickListener) {
+    public ElementAdapter(List<Element> elementList, OnElementClickListener onElementClickListener) {
         this.elementList = elementList;
         this.onElementClickListener = onElementClickListener;
+
     }
 
-    public void clearRecyclerView(){
+    public void clearRecyclerView() {
         elementList.clear();
         notifyDataSetChanged();
     }
@@ -35,7 +36,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
     @Override
     public ElementViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.element_item, parent, false);
-        return new ElementViewHolder(v,onElementClickListener);
+        return new ElementViewHolder(v, onElementClickListener);
     }
 
     @Override
@@ -43,13 +44,13 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
         Element currentElement = elementList.get(position);
         // TODO need to check how to set images in the view holder
         holder.elementTypeTextView.setText(String.format("Type:  %s", currentElement.getType()));
-        holder.elementNameTextView.setText(String.format("Name: %s",currentElement.getName()));
+        holder.elementNameTextView.setText(String.format("Name: %s", currentElement.getName()));
         holder.elementActiveTextView.setText(String.format("Active: %s", currentElement.getActive()));
-        holder.elementCreator.setText(String.format("Creator: %s",currentElement.getCreatedBy().getUserEmail()));
+        holder.elementCreator.setText(String.format("Creator: %s", currentElement.getCreatedBy().getUserEmail()));
         holder.elementDateCreation.setText(String.format("Creation Date: %s", currentElement.getCreatedTimestamp()));
         holder.elementImageView.setImageResource(RecycleBinType.getRecycleBinImage(RecycleTypes.valueOf(currentElement.getType())));
-
     }
+
 
     @Override
     public int getItemCount() {
@@ -63,6 +64,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
         private TextView elementActiveTextView;
         private TextView elementCreator;
         private TextView elementDateCreation;
+
         public ElementViewHolder(@NonNull View itemView, OnElementClickListener onElementListener) {
             super(itemView);
             elementImageView = itemView.findViewById(R.id.recycleBinImageView);
@@ -71,8 +73,9 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
             elementActiveTextView = itemView.findViewById(R.id.elementActiveTextView);
             elementCreator = itemView.findViewById(R.id.elementCreatorTextView);
             elementDateCreation = itemView.findViewById(R.id.elementCreationTextView);
+
             itemView.setOnClickListener(v -> {
-                if(onElementListener != null)
+                if (onElementListener != null)
                     onElementListener.onClick(getAdapterPosition());
             });
         }

@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
+    android:background="@drawable/login_gradient_background"
+
     android:orientation="vertical">
 
     <ScrollView
@@ -25,7 +27,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:text="@string/registration_form"
-                    android:textColor="@color/colorAccent"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
