@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.envirometalist.LoginActivity;
 import com.example.envirometalist.ManagerActivity;
 import com.example.envirometalist.R;
+import com.example.envirometalist.fragments.player.PlayerFragmentMap;
 import com.example.envirometalist.model.Element;
 import com.example.envirometalist.services.ElementService;
 
@@ -148,11 +149,11 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
     public void onClick(int position) {
         Toast.makeText(getActivity(), "Item at pos: " + position, Toast.LENGTH_SHORT).show();
 
-        //        NextFragment nextFrag= new NextFragment();
-//        getActivity().getSupportFragmentManager().beginTransaction()
-//                .replace(R.id.Layout_container, nextFrag, "findThisFragment")
-//                .addToBackStack(null)
-//                .commit();
+                PlayerFragmentMap nextFrag= new PlayerFragmentMap(elementList.get(position).getLocation());
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainer, nextFrag, "findThisFragment")
+                .addToBackStack(null)
+                .commit();
     }
 
     // Async task

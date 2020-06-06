@@ -1,8 +1,6 @@
 package com.example.envirometalist.fragments.player;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,24 +8,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.envirometalist.LoginActivity;
-import com.example.envirometalist.PlayerActivity;
 import com.example.envirometalist.R;
-import com.example.envirometalist.RegisterActivity;
 import com.example.envirometalist.clustermap.ClusterManagerRender;
 import com.example.envirometalist.clustermap.RecycleBinClusterMarker;
 import com.example.envirometalist.model.Action;
 import com.example.envirometalist.model.Element;
-import com.example.envirometalist.model.ElementId;
 import com.example.envirometalist.model.Invoker;
+import com.example.envirometalist.model.Location;
 import com.example.envirometalist.model.User;
-import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.ActionService;
 import com.example.envirometalist.services.ElementService;
-import com.example.envirometalist.services.UserService;
 import com.example.envirometalist.utility.UserReportDialog;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -36,19 +29,13 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import retrofit2.Call;
@@ -61,20 +48,23 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
     private GoogleMap googleMaps;
     private ClusterManager<RecycleBinClusterMarker> clusterManager;
     private ClusterManagerRender clusterManagerRender;
-    private ElementService elementService;
-    private User userManager;
     private MapView mMapView;
-    private RecycleBinClusterMarker currentItemView;
     private ActionService actionService;
-    // TODO GET THE USER LOCATION AND DISPLAY IT ON THE VIEW
-
-
+    private ElementService elementService;
+    private User player;
+    private Location location;
+    public PlayerFragmentMap(Location location){
+        this.location = location;
+    }
+    public PlayerFragmentMap(){
+        this.location = new Location(LoginActivity.latitude,LoginActivity.longitude);
+    }
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_map, container, false);
         mMapView = root.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();
-        userManager = LoginActivity.user;
+        player = LoginActivity.user;
 
         initRetrofit();
         initActionRetrofit();
@@ -95,7 +85,6 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
 
     private void onClusterItemClick() {
         clusterManager.setOnClusterItemClickListener(item -> {
-            currentItemView = item;
             UserReportDialog userReportDialog = new
                     UserReportDialog(getActivity(), item.getElement(),
                     this);
@@ -110,7 +99,7 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
                 .baseUrl(ElementService.BASE_URL)
                 .addConverterFactory(JacksonConverterFactory.create())
                 .build();
-        elementService = retrofit.create(ElementService.class);
+         elementService = retrofit.create(ElementService.class);
     }
 
     @SuppressLint("MissingPermission")
@@ -126,8 +115,8 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
                 googleMaps.setMyLocationEnabled(true);
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-                builder.include(new LatLng(LoginActivity.latitude - 0.003708, LoginActivity.longitude - 0.003008));
-                builder.include(new LatLng(LoginActivity.latitude + 0.003708, LoginActivity.longitude + 0.003008));
+                builder.include(new LatLng(LoginActivity.latitude - 0.003708, LoginActivity.longitude- 0.003008));
+                builder.include(new LatLng(LoginActivity.latitude + 0.003708, LoginActivity.longitude+ 0.003008));
 
                 LatLngBounds bounds = builder.build();
 
@@ -151,7 +140,7 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
     private void initClusterManager() {
         if (googleMaps != null) {
             if (clusterManager == null) {
-                clusterManager = new ClusterManager<>(getActivity().getApplicationContext(), googleMaps);
+                clusterManager = new ClusterManager<>(requireActivity(), googleMaps);
             }
             if (clusterManagerRender == null) {
                 clusterManagerRender = new ClusterManagerRender(getActivity(), googleMaps, clusterManager);
@@ -196,11 +185,11 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
             }
 
             @Override
-            public void onFailure(Call<Element[]> call, Throwable t) {
+            public void onFailure(@NotNull Call<Element[]> call, @NotNull Throwable t) {
 
             }
         });
-/*        elementService.getAllElements(userManager.getEmail(), 20, 0).enqueue(new Callback<Element[]>() {
+        elementService.getAllElements(player.getEmail(), 20, 0).enqueue(new Callback<Element[]>() {
             @Override
             public void onResponse(@NotNull Call<Element[]> call, @NotNull Response<Element[]> response) {
                 if (!response.isSuccessful()) {
@@ -227,7 +216,7 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
                         .setContentText("Something went wrong!\n" + t.getMessage())
                         .show();
             }
-        });*/
+        });
     }
 
     // @ TODO - CHECK WHY GOES TO FAIL!
@@ -235,7 +224,7 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
     public void onFinishReport(Action action) {
         actionService.invokeAction(action).enqueue(new Callback<Object>() {
             @Override
-            public void onResponse(Call<Object> call, Response<Object> response) {
+            public void onResponse(@NotNull Call<Object> call, @NotNull Response<Object> response) {
                 if (response.isSuccessful()) {
                     Log.i("onFinish", "SUCCESS!");
                 } else
@@ -243,7 +232,7 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
             }
 
             @Override
-            public void onFailure(Call<Object> call, Throwable t) {
+            public void onFailure(@NotNull Call<Object> call, @NotNull Throwable t) {
 
             }
         });

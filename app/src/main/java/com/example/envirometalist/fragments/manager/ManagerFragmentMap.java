@@ -2,11 +2,9 @@ package com.example.envirometalist.fragments.manager;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -15,13 +13,8 @@ import com.example.envirometalist.LoginActivity;
 import com.example.envirometalist.R;
 import com.example.envirometalist.clustermap.ClusterManagerRender;
 import com.example.envirometalist.clustermap.RecycleBinClusterMarker;
-import com.example.envirometalist.model.Action;
 import com.example.envirometalist.model.Element;
-import com.example.envirometalist.model.Invoker;
 import com.example.envirometalist.model.Location;
-import com.example.envirometalist.model.User;
-import com.example.envirometalist.model.UserRole;
-import com.example.envirometalist.services.ActionService;
 import com.example.envirometalist.services.ElementService;
 import com.example.envirometalist.utility.ElementCreationDialog;
 import com.example.envirometalist.utility.ElementManagementDialog;
@@ -32,14 +25,9 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import retrofit2.Call;
@@ -55,9 +43,6 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
     private ClusterManagerRender clusterManagerRender;
     private ElementService elementService;
     private MapView mMapView;
-    private RecycleBinClusterMarker currentItemView;
-    // TODO GET THE USER LOCATION AND DISPLAY IT ON THE VIEW
-
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_map, container, false);
@@ -110,7 +95,7 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
     private void initClusterManager() {
         if (googleMaps != null) {
             if (clusterManager == null) {
-                clusterManager = new ClusterManager<>(getActivity().getApplicationContext(), googleMaps);
+                clusterManager = new ClusterManager<>(requireActivity(), googleMaps);
             }
             if (clusterManagerRender == null) {
                 clusterManagerRender = new ClusterManagerRender(getActivity(), googleMaps, clusterManager);
@@ -125,7 +110,7 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
         googleMaps.setOnMapClickListener(latLng -> {
             Element element = new Element();
             element.setLocation(new Location(latLng.latitude, latLng.longitude));
-            ElementCreationDialog elementCreationDialog = new ElementCreationDialog(getActivity(), ManagerFragmentMap.this, element);
+            ElementCreationDialog elementCreationDialog = new ElementCreationDialog(requireActivity(), ManagerFragmentMap.this, element);
             elementCreationDialog.show();
         });
     }
@@ -166,8 +151,7 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
 
     private void onClusterItemClick() {
         clusterManager.setOnClusterItemClickListener(item -> {
-            currentItemView = item;
-            ElementManagementDialog elementManagementDialog = new ElementManagementDialog(getActivity(), item.getElement(), ManagerFragmentMap.this);
+            ElementManagementDialog elementManagementDialog = new ElementManagementDialog(requireActivity(), item.getElement(), ManagerFragmentMap.this);
             elementManagementDialog.show();
             return false;
         });
@@ -179,18 +163,28 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
         if (element != null) {
             elementService.createElement(LoginActivity.user.getEmail(), element).enqueue(new Callback<Element>() {
                 @Override
-                public void onResponse(Call<Element> call, Response<Element> response) {
+                public void onResponse(@NotNull Call<Element> call, @NotNull Response<Element> response) {
                     if (!response.isSuccessful()) {
-                        Log.i("onFinish", "UNSUCCESS");
+                        new SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE)
+                                .setTitleText("Oops.. ")
+                                .setContentText("Something went wrong!\n" + response.code())
+                                .show();
                     } else {
-                        RecycleBinClusterMarker recycleBinClusterMarker = new RecycleBinClusterMarker("Snippet", response.body());
-                        clusterManager.addItem(recycleBinClusterMarker);
-                        clusterManager.cluster();
+                        if (response.body() != null) {
+                            RecycleBinClusterMarker recycleBinClusterMarker = new RecycleBinClusterMarker("Snippet", response.body());
+                            clusterManager.addItem(recycleBinClusterMarker);
+                            clusterManager.cluster();
+                        }
+
                     }
                 }
 
                 @Override
-                public void onFailure(Call<Element> call, Throwable t) {
+                public void onFailure(@NotNull Call<Element> call, @NotNull Throwable t) {
+                    new SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText("Fatal error")
+                            .setContentText("Something went wrong!\n" + t.getMessage())
+                            .show();
                 }
             });
         }
@@ -202,19 +196,23 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
         elementService.updateElement(LoginActivity.user.getEmail(), updatedElement.getElementId(), updatedElement).enqueue(new Callback<Void>() {
 
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(@NotNull Call<Void> call, @NotNull Response<Void> response) {
                 if (!response.isSuccessful()) {
-                    // TODO THROW EXCEPTION
-                    Log.i("onUpdate", "response failed");
+                    new SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText("Oops..")
+                            .setContentText("Something went wrong!\n" + response.code())
+                            .show();
                 } else {
-                    //googleMaps.clear();
                     loadElementsFromServer();
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.i("onUpdate", "failure: " + t.getMessage() + "\n" + t.getCause() + "\n " + t.getStackTrace());
+            public void onFailure(@NotNull Call<Void> call, @NotNull Throwable t) {
+                new SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE)
+                        .setTitleText("Fatal error")
+                        .setContentText("Something went wrong!\n" + t.getMessage())
+                        .show();
             }
         });
     }

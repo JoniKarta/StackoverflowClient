@@ -2,7 +2,10 @@ package com.example.envirometalist.utility;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -40,6 +43,10 @@ public class ElementManagementDialog extends Dialog implements AdapterView.OnIte
         super(context);
         setContentView(R.layout.dialog_update_element);
         this.element = element;
+
+        if(getWindow() != null){
+            getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
         // Callback variable which the map registered to
         this.onManagerManagementCallback = onManagerManagementCallback;

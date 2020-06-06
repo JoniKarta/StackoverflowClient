@@ -21,9 +21,9 @@ import com.example.envirometalist.model.Action;
 import com.example.envirometalist.model.Element;
 import com.example.envirometalist.model.ElementId;
 import com.example.envirometalist.model.Invoker;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+//import com.google.firebase.storage.FirebaseStorage;
+//import com.google.firebase.storage.StorageReference;
+//import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Collections;
@@ -39,7 +39,7 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
     private ImageView imageTaken;
     private OnReportReadyListener onReportReadyListener;
     private int chosenReportRadio;
-    private StorageReference mStorageRef;
+    //private StorageReference mStorageRef;
     private Bitmap uploadBitmap;
 
 
@@ -53,7 +53,7 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
         otherText = findViewById(R.id.other_text);
         uploadButt = findViewById(R.id.uploadButt);
         imageTaken = findViewById(R.id.uploadedPic);
-        mStorageRef = FirebaseStorage.getInstance().getReference();
+      //  mStorageRef = FirebaseStorage.getInstance().getReference();
 
         ((PlayerActivity) activity).setImageTakenListener(this);
         setCanceledOnTouchOutside(true);
@@ -153,15 +153,18 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
     private void uploadFile(Bitmap bitmap) {
         if (bitmap != null) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+      //      bitmap.compress(Bditmap.CompressFormat.JPEG, 100, baos);
             byte[] data = baos.toByteArray();
 
-            UploadTask uploadTask = mStorageRef.child("photos")
+
+           /* UploadTask uploadTask = mStorageRef.child("photos")
                     .child(LoginActivity.user.getEmail())
                     .child(UUID.randomUUID().toString()).putBytes(data);
             uploadTask.addOnFailureListener(exception -> {
             }).addOnSuccessListener(taskSnapshot -> {
             });
+            */
+
         }
     }
 }
