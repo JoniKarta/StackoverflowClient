@@ -15,6 +15,7 @@ import com.example.envirometalist.clustermap.ClusterManagerRender;
 import com.example.envirometalist.clustermap.RecycleBinClusterMarker;
 import com.example.envirometalist.model.Element;
 import com.example.envirometalist.model.Location;
+import com.example.envirometalist.model.User;
 import com.example.envirometalist.services.ElementService;
 import com.example.envirometalist.utility.ElementCreationDialog;
 import com.example.envirometalist.utility.ElementManagementDialog;
@@ -43,6 +44,19 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
     private ClusterManagerRender clusterManagerRender;
     private ElementService elementService;
     private MapView mMapView;
+    private User managerUser;
+    private Location elementLocation;
+    public ManagerFragmentMap(){
+
+    }
+    public ManagerFragmentMap(User managerUser){
+
+        this.managerUser = managerUser;
+    }
+    public ManagerFragmentMap(User managerUser,Location elementLocation){
+        this.managerUser = managerUser;
+        this.elementLocation = elementLocation;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_map, container, false);

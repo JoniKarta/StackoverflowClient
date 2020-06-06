@@ -52,12 +52,17 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
     private ActionService actionService;
     private ElementService elementService;
     private User player;
-    private Location location;
-    public PlayerFragmentMap(Location location){
-        this.location = location;
+    private Location elementLocation;
+
+    public PlayerFragmentMap(User player, Location elementLocation){
+        this.player = player;
+        this.elementLocation = elementLocation;
+    }
+    public PlayerFragmentMap(User player){
+        this.player = player;
     }
     public PlayerFragmentMap(){
-        this.location = new Location(LoginActivity.latitude,LoginActivity.longitude);
+
     }
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_map, container, false);

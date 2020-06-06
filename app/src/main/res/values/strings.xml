@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Envirometalist</string>
+    <string name="app_name">Stackoverflow</string>
 
     <!--Login Activity -->
     <string name="login">LOGIN</string>

@@ -43,7 +43,7 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
     private DrawerLayout drawerLayout;
-
+    private User user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,23 +60,21 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         navigationView.setNavigationItemSelectedListener(this);
         actionBarDrawerToggle.syncState();
+        user =  (User) getIntent().getExtras().get("User");
         setUserName();
         setUserEmail();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.fragmentContainer, new PlayerFragmentMap());
+        fragmentTransaction.add(R.id.fragmentContainer, new PlayerFragmentMap(user));
         fragmentTransaction.commit();
 
     }
 
     public void setUserName() {
-        User user = (User) getIntent().getExtras().get("User");
-        Toast.makeText(this, user.getUsername(), Toast.LENGTH_SHORT).show();
         userName.setText(user.getUsername());
     }
 
     public void setUserEmail() {
-        User user = (User) getIntent().getExtras().get("User");
         userEmail.setText(user.getEmail());
     }
 
@@ -85,10 +83,10 @@ public class PlayerActivity extends AppCompatActivity implements NavigationView.
         drawerLayout.closeDrawer(GravityCompat.START);
         fragmentTransaction = fragmentManager.beginTransaction();
         if (item.getItemId() == R.id.nav_home) {
-            fragmentTransaction.replace(R.id.fragmentContainer, new PlayerFragmentMap());
+            fragmentTransaction.replace(R.id.fragmentContainer, new PlayerFragmentMap(user));
         }
         if (item.getItemId() == R.id.nav_search) {
-            fragmentTransaction.replace(R.id.fragmentContainer, new SearchFragment());
+            fragmentTransaction.replace(R.id.fragmentContainer, new SearchFragment(user));
         }
         if (item.getItemId() == R.id.nav_logout) {
             startActivity(new Intent(PlayerActivity.this, LoginActivity.class));

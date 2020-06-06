@@ -24,8 +24,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.envirometalist.LoginActivity;
 import com.example.envirometalist.ManagerActivity;
 import com.example.envirometalist.R;
+import com.example.envirometalist.fragments.manager.ManagerFragmentMap;
 import com.example.envirometalist.fragments.player.PlayerFragmentMap;
 import com.example.envirometalist.model.Element;
+import com.example.envirometalist.model.User;
+import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.ElementService;
 
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +56,10 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
     private static String filter;
     private static int page = 0;
     private static final int SIZE = 10;
-
+    private User user;
+    public SearchFragment(User user){
+        this.user = user;
+    }
     // TODO GET THE MANAGER EMAIL FROM THE LOGIN ACTIVITY
     private String managerEmail = LoginActivity.user.getEmail();
 
@@ -147,16 +153,19 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
 
     @Override
     public void onClick(int position) {
-        Toast.makeText(getActivity(), "Item at pos: " + position, Toast.LENGTH_SHORT).show();
+        Fragment fragment = null;
+        if(user.getRole() == UserRole.MANAGER) {
+            fragment = new ManagerFragmentMap(user,elementList.get(position).getLocation());
 
-                PlayerFragmentMap nextFrag= new PlayerFragmentMap(elementList.get(position).getLocation());
+        }else if(user.getRole() == UserRole.PLAYER){
+            fragment  = new PlayerFragmentMap(user,elementList.get(position).getLocation());
+        }
         getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainer, nextFrag, "findThisFragment")
+                .replace(R.id.fragmentContainer, fragment, "fragmentMap")
                 .addToBackStack(null)
                 .commit();
-    }
 
-    // Async task
+    }
 
     private void getAllElements(String managerEmail, int size, int page) {
         elementService.getAllElements(managerEmail, size, page)
