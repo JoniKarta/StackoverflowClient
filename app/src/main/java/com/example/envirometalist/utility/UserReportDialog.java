@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
 import android.text.InputType;
 import android.widget.Button;
@@ -21,6 +22,9 @@ import com.example.envirometalist.model.Action;
 import com.example.envirometalist.model.Element;
 import com.example.envirometalist.model.ElementId;
 import com.example.envirometalist.model.Invoker;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 //import com.google.firebase.storage.FirebaseStorage;
 //import com.google.firebase.storage.StorageReference;
 //import com.google.firebase.storage.UploadTask;
@@ -39,8 +43,9 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
     private ImageView imageTaken;
     private OnReportReadyListener onReportReadyListener;
     private int chosenReportRadio;
-    //private StorageReference mStorageRef;
+    private StorageReference mStorageRef = FirebaseStorage.getInstance().getReference();
     private Bitmap uploadBitmap;
+    private String txtReport;
 
 
     public UserReportDialog(Activity activity, Element element, OnReportReadyListener onReportReadyListener) {
@@ -53,7 +58,7 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
         otherText = findViewById(R.id.other_text);
         uploadButt = findViewById(R.id.uploadButt);
         imageTaken = findViewById(R.id.uploadedPic);
-      //  mStorageRef = FirebaseStorage.getInstance().getReference();
+
 
         ((PlayerActivity) activity).setImageTakenListener(this);
         setCanceledOnTouchOutside(true);
@@ -96,7 +101,6 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
                         "Please choose report type", Toast.LENGTH_LONG).show();
                 return;
             }
-            String txtReport;
             if (position != 3) {
                 txtReport = radioButton.getText().toString();
             } else {
@@ -151,20 +155,21 @@ public class UserReportDialog extends Dialog implements PlayerActivity.ImageTake
      * Uploads report's image to FireStorage
      */
     private void uploadFile(Bitmap bitmap) {
+        if(bitmap == null){
+            bitmap = BitmapFactory.decodeResource(getContext().getResources(),
+                    R.drawable.trash);
+        }
         if (bitmap != null) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      //      bitmap.compress(Bditmap.CompressFormat.JPEG, 100, baos);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] data = baos.toByteArray();
 
-
-           /* UploadTask uploadTask = mStorageRef.child("photos")
+            UploadTask uploadTask = mStorageRef.child("photos")
                     .child(LoginActivity.user.getEmail())
-                    .child(UUID.randomUUID().toString()).putBytes(data);
+                    .child(element.getElementId()+"-"+txtReport).putBytes(data);
             uploadTask.addOnFailureListener(exception -> {
             }).addOnSuccessListener(taskSnapshot -> {
             });
-            */
-
         }
     }
 }

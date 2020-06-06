@@ -36,10 +36,18 @@
 
 
     <!-- Spinner     -->
-    <string-array name="search_filter_spinner">
+    <string-array name="player_filter_spinner">
         <item>All</item>
         <item>Name</item>
         <item>Type</item>
+    </string-array>
+
+    <!-- Spinner     -->
+    <string-array name="manager_filter_spinner">
+        <item>All</item>
+        <item>Name</item>
+        <item>Type</item>
+        <item>Fault</item>
     </string-array>
 
     <!-- Menu -->

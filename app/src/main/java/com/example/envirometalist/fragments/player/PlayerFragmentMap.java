@@ -58,12 +58,15 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
         this.player = player;
         this.elementLocation = elementLocation;
     }
+
     public PlayerFragmentMap(User player){
         this.player = player;
     }
+
     public PlayerFragmentMap(){
 
     }
+
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_map, container, false);
         mMapView = root.findViewById(R.id.mapView);
@@ -120,8 +123,14 @@ public class PlayerFragmentMap extends Fragment implements UserReportDialog.OnRe
                 googleMaps.setMyLocationEnabled(true);
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-                builder.include(new LatLng(LoginActivity.latitude - 0.003708, LoginActivity.longitude- 0.003008));
-                builder.include(new LatLng(LoginActivity.latitude + 0.003708, LoginActivity.longitude+ 0.003008));
+                if(elementLocation == null) {
+                    builder.include(new LatLng(LoginActivity.latitude - 0.003708, LoginActivity.longitude - 0.003008));
+                    builder.include(new LatLng(LoginActivity.latitude + 0.003708, LoginActivity.longitude + 0.003008));
+                }
+                else{
+                    builder.include(new LatLng(elementLocation.getLat() - 0.003708, elementLocation.getLng() - 0.003008));
+                    builder.include(new LatLng(elementLocation.getLat() + 0.003708, elementLocation.getLng() + 0.003008));
+                }
 
                 LatLngBounds bounds = builder.build();
 

@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,11 @@ import com.example.envirometalist.model.Element;
 import com.example.envirometalist.model.User;
 import com.example.envirometalist.model.UserRole;
 import com.example.envirometalist.services.ElementService;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageReference;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -73,12 +79,20 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
 
         // ArrayList of elements which will be passed to the recycler view
         elementList = new ArrayList<>();
-
+        ArrayAdapter<CharSequence> filterAdapter;
         // Spinner Configuration
-        ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(
-                getActivity(),
-                R.array.search_filter_spinner,
-                android.R.layout.simple_spinner_dropdown_item);
+        if (user.getRole() == UserRole.PLAYER) {
+            filterAdapter = ArrayAdapter.createFromResource(
+                    getActivity(),
+                    R.array.player_filter_spinner,
+                    android.R.layout.simple_spinner_dropdown_item);
+        } else {
+            filterAdapter = ArrayAdapter.createFromResource(
+                    getActivity(),
+                    R.array.manager_filter_spinner,
+                    android.R.layout.simple_spinner_dropdown_item);
+        }
+
         spinner.setAdapter(filterAdapter);
         spinner.setOnItemSelectedListener(this);
 
@@ -141,6 +155,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
         searchElementEditText.getText().clear();
         clearCurrentResults();
         filter = getCurrentFilter(parent.getItemAtPosition(position).toString());
+        Log.i("Filter", filter + "");
         getDataFromServerByFilter(managerEmail, filter, page);
         progressBar.setVisibility(View.GONE);
     }
@@ -155,10 +170,10 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
     public void onClick(int position) {
         Fragment fragment = null;
         if(user.getRole() == UserRole.MANAGER) {
-            fragment = new ManagerFragmentMap(user,elementList.get(position).getLocation());
+            fragment = new ManagerFragmentMap(user, elementList.get(position).getLocation());
 
         }else if(user.getRole() == UserRole.PLAYER){
-            fragment  = new PlayerFragmentMap(user,elementList.get(position).getLocation());
+            fragment  = new PlayerFragmentMap(user, elementList.get(position).getLocation());
         }
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentContainer, fragment, "fragmentMap")
@@ -246,14 +261,36 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
                 .show();
     }
 
-    private void getDataFromServerByFilter(String managerEmail, String filter, int page) {
+    private void getDataFromServerByFilter(String userEmail, String filter, int page) {
         if (SearchFilter.All.name().equals(filter))
-            getAllElements(managerEmail, SIZE, page);
+            getAllElements(userEmail, SIZE, page);
         else if (SearchFilter.Name.name().equals(filter))
-            getElementsByName(managerEmail, "", SIZE, page);
+            getElementsByName(userEmail, "", SIZE, page);
         else if (SearchFilter.Type.name().equals(filter))
-            getElementByType(managerEmail, "", SIZE, page);
+            getElementByType(userEmail, "", SIZE, page);
+        else if(SearchFilter.Fault.name().equals(filter)){
+            getAllFaultElements(userEmail);
+        }
+    }
 
+    private void getAllFaultElements(String userEmail) {
+        StorageReference mStorageRef = FirebaseStorage.getInstance().getReference();
+
+        mStorageRef.child("photos").listAll().addOnSuccessListener(listResult -> {
+
+            for (StorageReference prefix : listResult.getPrefixes()) {
+                Log.i("prefix: ", prefix +"");
+                prefix.listAll().addOnSuccessListener(listResult1 -> {
+                    for (StorageReference item : listResult1.getItems()) {
+                        // All the items under listRef.
+                        String[] split = item.getName().split("-");
+                        Log.i("item: ", split[0] + " , " + split[1]);
+                    }
+                }).addOnFailureListener(e -> {
+
+                });
+            }
+        }).addOnFailureListener(e -> Toast.makeText(mActivity, "getAllFault failed", Toast.LENGTH_SHORT).show());
     }
 
     private String getCurrentFilter(String filter) {
@@ -270,6 +307,10 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
         else if (SearchFilter.Type.name().equals(filter)) {
             updateFilter = filter;
             searchElementEditText.setEnabled(true);
+        } else if (SearchFilter.Fault.name().equals(filter)){
+            updateFilter = filter;
+            searchElementEditText.setInputType(InputType.TYPE_NULL);
+            searchElementEditText.setEnabled(false);
         }
         return updateFilter;
     }
