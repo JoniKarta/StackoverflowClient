@@ -25,8 +25,7 @@
             android:backgroundTint="@color/black"
             android:ems="10"
             android:hint="@string/email"
-            android:inputType="textEmailAddress"
-            android:text="Jonathan@gmail.com" />
+            android:inputType="textEmailAddress" />
 
         <Spinner
             android:id="@+id/loginRoleSpinnerList"

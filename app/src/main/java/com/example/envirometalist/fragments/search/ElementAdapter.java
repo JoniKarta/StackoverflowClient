@@ -15,6 +15,7 @@ import com.example.envirometalist.model.RecycleTypes;
 import com.example.envirometalist.utility.RecycleBinType;
 
 import java.util.List;
+import java.util.Objects;
 
 
 public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementViewHolder> {
@@ -43,6 +44,10 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
     public void onBindViewHolder(@NonNull ElementViewHolder holder, int position) {
         Element currentElement = elementList.get(position);
         // TODO need to check how to set images in the view holder
+        if(currentElement.getElementAttribute().containsKey("reports")){
+            holder.elementReport.setText("Reports: " + Objects.requireNonNull(currentElement.getElementAttribute().get("reports")).toString());
+            holder.elementReport.setVisibility(View.VISIBLE);
+        }
         holder.elementTypeTextView.setText(String.format("Type:  %s", currentElement.getType()));
         holder.elementNameTextView.setText(String.format("Name: %s", currentElement.getName()));
         holder.elementActiveTextView.setText(String.format("Active: %s", currentElement.getActive()));

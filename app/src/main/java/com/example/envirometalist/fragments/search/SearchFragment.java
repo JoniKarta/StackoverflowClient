@@ -15,8 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -37,6 +35,7 @@ import com.google.firebase.storage.StorageReference;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -60,7 +59,8 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
     private static String filter;
     private RecyclerView recyclerView;
     private static int page = 0;
-
+    private TextWatcher textWatcher;
+    private String searchContent;
     private User user;
 
     public SearchFragment(User user) {
@@ -81,7 +81,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
 
         if (user.getRole() == UserRole.PLAYER) {
             filterAdapter = ArrayAdapter.createFromResource(
-                   requireActivity(),
+                    requireActivity(),
                     R.array.player_filter_spinner,
                     android.R.layout.simple_spinner_dropdown_item);
         } else {
@@ -101,13 +101,14 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
         adapter = new ElementAdapter(elementList, SearchFragment.this);
         recyclerView.setAdapter(adapter);
         initRetrofit();
-        searchElementOnTextChanged();
+
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NotNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (!recyclerView.canScrollVertically(1) && !filter.equals(SearchFilter.Fault.name())) {
+                if (!recyclerView.canScrollVertically(1) &&
+                        !filter.equals(SearchFilter.Fault.name()) && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     progressBar.setVisibility(View.VISIBLE);
                     Handler handler = new Handler();
                     handler.postDelayed(() -> progressBar.setVisibility(View.GONE), 3000);
@@ -120,8 +121,49 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
         return root;
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        searchElementOnTextChanged();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        searchElementEditText.removeTextChangedListener(textWatcher);
+    }
+
     private void searchElementOnTextChanged() {
-        searchElementEditText.addTextChangedListener(new TextWatcher() {
+        textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                //clearCurrentResults();
+                page = 0;
+                if (s != null)
+                    searchContent = s.toString();
+
+                if (filter.equals(SearchFilter.Name.name())) {
+                    getElementsByName(user.getEmail(), s.toString() + "%", 10, page);
+                } else if (filter.equals(SearchFilter.Type.name()))
+                    getElementByType(user.getEmail(), s.toString() + "%", 10, page);
+
+            }
+        };
+        searchElementEditText.addTextChangedListener(textWatcher);
+
+      /*  searchElementEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
 
@@ -133,13 +175,17 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
 
             @Override
             public void afterTextChanged(Editable s) {
+
                 clearCurrentResults();
-                if (filter.equals(SearchFilter.Name.name()))
+                if (filter.equals(SearchFilter.Name.name())) {
                     getElementsByName(user.getEmail(), s.toString() + "%", 10, page);
+                    Log.i("PAGE", "PAGE = " + page);
+                }
                 else if (filter.equals(SearchFilter.Type.name()))
                     getElementByType(user.getEmail(), s.toString() + "%",10, page);
             }
         });
+    }*/
     }
 
     private void initRetrofit() {
@@ -190,13 +236,15 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
      * This function calling to callback function to get data from the server
      */
     private void getDataFromServerByFilter(String userEmail, String filter, int page) {
-        if (SearchFilter.All.name().equals(filter))
+        if (SearchFilter.All.name().equals(filter)) {
             getAllElements(userEmail, 10, page);
-        else if (SearchFilter.Name.name().equals(filter))
+        } else if (SearchFilter.Name.name().equals(filter)) {
+
             getElementsByName(userEmail, "", 10, page);
-        else if (SearchFilter.Type.name().equals(filter))
+        } else if (SearchFilter.Type.name().equals(filter)) {
+
             getElementByType(userEmail, "", 10, page);
-        else if (SearchFilter.Fault.name().equals(filter) && user.getRole() == UserRole.MANAGER) {
+        } else if (SearchFilter.Fault.name().equals(filter) && user.getRole() == UserRole.MANAGER) {
             getAllFaultElements();
         }
     }
@@ -273,6 +321,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
     private void getElementsByName(String managerEmail, String name, int size, int page) {
         if (name.isEmpty() || name.equals("%"))
             return;
+
         elementService.searchElementByName(managerEmail, name, size, page).enqueue(new Callback<Element[]>() {
             @Override
             public void onResponse(@NotNull Call<Element[]> call, @NotNull Response<Element[]> response) {
@@ -280,10 +329,15 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
                     sweetAlert("Oops...", "Something went wrong \n " + response.code());
                     return;
                 }
-                Collections.addAll((List<Element>) elementList, Objects.requireNonNull(response.body()));
-                adapter.notifyDataSetChanged();
+                if (!name.equalsIgnoreCase(searchContent)) {
+                    elementList.clear();
+                    searchContent = name;
+                }
+                if (response.body() != null) {
+                    elementList.addAll(Arrays.asList(response.body()));
+                    adapter.notifyDataSetChanged();
+                }
                 progressBar.setVisibility(View.GONE);
-
             }
 
             @Override
@@ -305,8 +359,14 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
                     sweetAlert("Oops...", "Something went wrong \n " + response.code());
                     return;
                 }
-                Collections.addAll(elementList, Objects.requireNonNull(response.body()));
-                adapter.notifyDataSetChanged();
+                if (!type.equalsIgnoreCase(searchContent)) {
+                    elementList.clear();
+                    searchContent = type;
+                }
+                if (response.body() != null) {
+                    elementList.addAll(Arrays.asList(response.body()));
+                    adapter.notifyDataSetChanged();
+                }
                 progressBar.setVisibility(View.GONE);
             }
 
@@ -326,12 +386,10 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
         StorageReference mStorageRef = FirebaseStorage.getInstance().getReference();
         mStorageRef.child("photos").listAll().addOnSuccessListener(listResult -> {
             for (StorageReference prefix : listResult.getPrefixes()) {
-                Log.i("prefix: ", prefix + "");
                 prefix.listAll().addOnSuccessListener(listResult1 -> {
                     for (StorageReference item : listResult1.getItems()) {
                         // All the items under listRef.
                         String[] split = item.getName().split("-");
-                        Log.i("SPLIT", "split  0 = " + split[0] + ", split 1 = " + split[1]);
                         elementService.getElement(user.getEmail(), split[0]).enqueue(new Callback<Element>() {
                             @Override
                             public void onResponse(@NotNull Call<Element> call, @NotNull Response<Element> response) {
@@ -340,13 +398,8 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
                                 }
                                 Log.i("TAG", "onResponse: " + response.body());
 
+                                response.body().setElementAttribute(Collections.singletonMap("reports", split[1]));
                                 elementList.add(response.body());
-
-                               /* RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForItemId(elementList.size()-1);
-                                View view = viewHolder.itemView;
-                                TextView reportView = view.findViewById(R.id.elementReportTextView);
-                                reportView.setVisibility(View.VISIBLE);
-                                reportView.setText(split[1]);*/
                                 adapter.notifyDataSetChanged();
                             }
 
@@ -357,14 +410,10 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
                         });
 
                     }
-                    Log.i("TAG", "getAllFaultElements: ");
-
-
                 }).addOnFailureListener(e -> {
 
                 });
             }
-        Log.i("SIZE", elementList.size() +" , SIZE");
         }).addOnFailureListener(e -> sweetAlert("Oops...", "Something went wrong \n "));
     }
 
@@ -380,6 +429,5 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
             mActivity = (ManagerActivity) context;
         }
     }
-
 }
 
