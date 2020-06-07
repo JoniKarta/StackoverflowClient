@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -57,6 +58,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
     private ProgressBar progressBar;
     private Context mActivity;
     private static String filter;
+    private RecyclerView recyclerView;
     private static int page = 0;
 
     private User user;
@@ -70,7 +72,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
         View root = inflater.inflate(R.layout.fragment_elements_search, container, false);
         searchElementEditText = root.findViewById(R.id.searchElementEditText);
         Spinner spinner = root.findViewById(R.id.searchCategorySpinner);
-        RecyclerView recyclerView = root.findViewById(R.id.recyclerView);
+        recyclerView = root.findViewById(R.id.recyclerView);
         progressBar = root.findViewById(R.id.progressbar);
         elementList = new ArrayList<>();
 
@@ -323,22 +325,28 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
     private void getAllFaultElements() {
         StorageReference mStorageRef = FirebaseStorage.getInstance().getReference();
         mStorageRef.child("photos").listAll().addOnSuccessListener(listResult -> {
-
             for (StorageReference prefix : listResult.getPrefixes()) {
                 Log.i("prefix: ", prefix + "");
                 prefix.listAll().addOnSuccessListener(listResult1 -> {
                     for (StorageReference item : listResult1.getItems()) {
                         // All the items under listRef.
                         String[] split = item.getName().split("-");
+                        Log.i("SPLIT", "split  0 = " + split[0] + ", split 1 = " + split[1]);
                         elementService.getElement(user.getEmail(), split[0]).enqueue(new Callback<Element>() {
                             @Override
                             public void onResponse(@NotNull Call<Element> call, @NotNull Response<Element> response) {
                                 if (!response.isSuccessful() && getActivity() != null) {
-                                    sweetAlert("Oops...", "Something went wrong \n " + response.code());
                                     return;
                                 }
                                 Log.i("TAG", "onResponse: " + response.body());
+
                                 elementList.add(response.body());
+
+                               /* RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForItemId(elementList.size()-1);
+                                View view = viewHolder.itemView;
+                                TextView reportView = view.findViewById(R.id.elementReportTextView);
+                                reportView.setVisibility(View.VISIBLE);
+                                reportView.setText(split[1]);*/
                                 adapter.notifyDataSetChanged();
                             }
 
@@ -356,7 +364,8 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
 
                 });
             }
-        }).addOnFailureListener(e -> Toast.makeText(mActivity, "getAllFault failed", Toast.LENGTH_SHORT).show());
+        Log.i("SIZE", elementList.size() +" , SIZE");
+        }).addOnFailureListener(e -> sweetAlert("Oops...", "Something went wrong \n "));
     }
 
     /**

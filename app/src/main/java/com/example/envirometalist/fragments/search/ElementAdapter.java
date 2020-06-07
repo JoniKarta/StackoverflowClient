@@ -58,15 +58,18 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
     }
 
     public static class ElementViewHolder extends RecyclerView.ViewHolder {
+
         private ImageView elementImageView;
         private TextView elementTypeTextView;
         private TextView elementNameTextView;
         private TextView elementActiveTextView;
         private TextView elementCreator;
         private TextView elementDateCreation;
+        private TextView elementReport;
 
         public ElementViewHolder(@NonNull View itemView, OnElementClickListener onElementListener) {
             super(itemView);
+            elementReport = itemView.findViewById(R.id.elementReportTextView);
             elementImageView = itemView.findViewById(R.id.recycleBinImageView);
             elementTypeTextView = itemView.findViewById(R.id.elementTypeTextView);
             elementNameTextView = itemView.findViewById(R.id.elementNameTextView);
@@ -80,6 +83,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ElementV
             });
         }
     }
+
 
     interface OnElementClickListener {
         void onClick(int position);

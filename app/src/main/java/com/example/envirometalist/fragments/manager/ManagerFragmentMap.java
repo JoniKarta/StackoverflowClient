@@ -44,14 +44,18 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
     private ClusterManagerRender clusterManagerRender;
     private ElementService elementService;
     private MapView mMapView;
+    private Location elementLocation;
+    private User managerUser;
 
     public ManagerFragmentMap(){
 
     }
     public ManagerFragmentMap(User managerUser){
-
+    this.managerUser = managerUser;
     }
     public ManagerFragmentMap(User managerUser,Location elementLocation){
+        this.managerUser = managerUser;
+        this.elementLocation = elementLocation;
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -87,8 +91,15 @@ public class ManagerFragmentMap extends Fragment implements ElementCreationDialo
                 googleMaps.setMyLocationEnabled(true);
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-                builder.include(new LatLng(LoginActivity.latitude - 0.003708, LoginActivity.longitude - 0.003008));
-                builder.include(new LatLng(LoginActivity.latitude + 0.003708, LoginActivity.longitude + 0.003008));
+                if(elementLocation == null) {
+                    builder.include(new LatLng(LoginActivity.latitude - 0.003708, LoginActivity.longitude - 0.003008));
+                    builder.include(new LatLng(LoginActivity.latitude + 0.003708, LoginActivity.longitude + 0.003008));
+                }
+                else{
+                    builder.include(new LatLng(elementLocation.getLat() - 0.003708, elementLocation.getLng() - 0.003008));
+                    builder.include(new LatLng(elementLocation.getLat() + 0.003708, elementLocation.getLng() + 0.003008));
+                }
+
 
                 LatLngBounds bounds = builder.build();
 
